@@ -1,0 +1,25 @@
+\copy thecb.univ_degree_program (tableseq, fice, primarycode, secondarycode, administrativeunitcode, programcip, programcipsub, name, datestart, dateend, flag, sopcip, sopcipsub, translatename, updatetime, updateuser, inserttime, insertuser) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/program_inventory_data/univ_degree_program.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.univ_degree (tableseq, fice, primarycode, secondarycode, administrativeunitcode, programcip, programcipsub, degreecip, degreecipsub, degreelevel, degreename, datestart, dateend, positionx, footnoteposition, footnotetext, placeholder, distanceed, minimumsch, maximumsch, updatetime, updateuser, inserttime, insertuser, originalstartdate, programcip2010, degreecip2010) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/program_inventory_data/univ_degree.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.institution (instfice, instfice2, instname, insttype, instcnty, instsy, instpill, instbp, instsw, instlegalname, instabbrevname, instcountycode, instcountyname, instcounty, instregionnum, instregion, instacctsys, instpeergroup, insttypecode, zipcode) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/program_inventory_data/institution.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.ctc_clearinghouse_program (programid, fice, cip6, cipsuffix, seq, name, approvaldate, revisiondate, closedate, advtechflag, lastupdate, lastupdateaction, lastupdater, evalstatus, evaldate, updatetime, updateuser, inserttime, insertuser) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/program_inventory_data/ctc_clearinghouse_program.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.ctc_clearinghouse_award (awardid, fice, cip6, cipsuffix, seq, programcip6, programcipsuffix, programseq, typemajor, level, abbrev, title, length, intervalx, contacthours, mincredithours, maxcredithours, startdate, enddate, tpimpldate, outdistflag, corrflag, evalstatus, evaldate, lastupdateaction, actioneffdate, lastupdate, lastupdater, updatetime, updateuser, inserttime, insertuser, cip2010) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/program_inventory_data/ctc_clearninghouse_award.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.ipeds (unitid, institution_name, opeid8, institution_name2, street_address, city, zip, website, mission_statement, mission_statement_url, dummy) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/ipeds_data_11-14-2022.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.credential_type_lookup_university (degree_level_code, degree_level, credential_type) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/credential_type_lookup_university.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.credential_type_lookup_ctc (ctc_level_code, ctc_level, credential_type) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/credential_type_lookup_ctc.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+
+\copy thecb.award_type_crosswalk (institution_type, inst_type_id, program_inv_award_level, program_inv_cer, award_level_description, ctdl_credential_type, madlibs) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/award_type_crosswalk.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+
+\copy thecb.inst_type_lookup (inst_type_code, inst_type_desc, include_flag, ce_agent_type, madlibs) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/inst_type_lookup.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
+
+\copy thecb.opeid_fice_crosswalk (opeid8, institution_name, fice, dupflag, issue_flag) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/OPEDS_FICE_Crosswalk.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8' ;
+
+\copy thecb.opeid_fice_crosswalk2 (fice, institution_name, opeid8, opeunit, ipeds) FROM '/Users/chrismoffatt/credential_pipeline/data_load_files/supporting_data/FICE-OPEID-Crosswalk2.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
