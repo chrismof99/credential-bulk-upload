@@ -22,23 +22,29 @@ SELECT
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
- --'TBD-IPEDS' "Description2",
- 'TBD-THECB' "PrimaryPhoneNumber",
- 'TBD-THECB' "PrimaryPhoneNumberExtension",
- 'TBD-THECB' "PrimaryEmail",
+ '' FEIN,
+ '' DUNS,
+ '' OPEID,
+ '512-123-4567' "PrimaryPhoneNumber",
+ '' "PrimaryPhoneExtension",
+ '' "SecondaryPhoneNumber",
+ '' "SecondaryPhoneExtension",
+ 'chris.moffatt@touchdownllc.com' "PrimaryEmail",
  'CredentialOrganization' "Publishing Roles",
  'BulkUpload' "Publishing Methods",
+ '' "Consuming Methods",
  'Public' "Organization Sector",
  insttype.ce_agent_type "Organization Types",
  'chris.moffatt@touchdownllc.com' "Contact Email",
  'Chris' "Contact First Name",
  'Moffatt' "Contact Last Name",
+ '' "Contact Daytime Phone Number",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
  'TBD-IPEDS'"PostalCode",
  'United States'"Country",
- 'TBD' "Publishing Estimates"
+ '' "Publishing Estimates"
 into thecb.organization_ctc
 from
   thecb.ctc_org_fice orgfice,
@@ -89,4 +95,4 @@ FROM thecb.inst_type_lookup it
 WHERE ("Description" is null OR "Description" = 'TBD-IPEDS')
 AND it.inst_type_code = org.insttype;
 
-select * from thecb.organization_ctc order by "Webpage";
+select * from thecb.organization_ctc order by "Name";

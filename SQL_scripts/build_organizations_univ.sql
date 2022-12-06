@@ -18,27 +18,33 @@ SELECT
  inst.instfice fice, 
  inst.insttype,
  inst.instlegalname "Name",
- 'TBD-CE' "CTID",
+ '' "CTID",
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
- --'TBD-IPEDS' "Description2",
- 'TBD-THECB' "PrimaryPhoneNumber",
- 'TBD-THECB' "PrimaryPhoneNumberExtension",
- 'TBD-THECB' "PrimaryEmail",
+ '' FEIN,
+ '' DUNS,
+ '' OPEID,
+ '512-123-4567' "PrimaryPhoneNumber",
+ '' "PrimaryPhoneExtension",
+ '' "SecondaryPhoneNumber",
+ '' "SecondaryPhoneExtension",
+ 'chris.moffatt@touchdownllc.com' "PrimaryEmail",
  'CredentialOrganization' "Publishing Roles",
  'BulkUpload' "Publishing Methods",
+ '' "Consuming Methods",
  'Public' "Organization Sector",
  insttype.ce_agent_type "Organization Types",
  'chris.moffatt@touchdownllc.com' "Contact Email",
  'Chris' "Contact First Name",
  'Moffatt' "Contact Last Name",
+ '' "Contact Daytime Phone Number",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
  'TBD-IPEDS'"PostalCode",
  'United States'"Country",
- 'TBD' "Publishing Estimates"
+ '' "Publishing Estimates"
  into thecb.organization_univ
 from
   thecb.univ_org_fice orgfice,
@@ -92,4 +98,12 @@ FROM thecb.inst_type_lookup it
 WHERE ("Description" is null OR "Description" = 'TBD-IPEDS')
 AND it.inst_type_code = org.insttype;
 
-select * from thecb.organization_univ order by "Webpage";
+select * from thecb.organization_univ order by "Name";
+
+/*
+Update with CTID
+*/
+UPDATE thecb.organization_univ org
+SET "CTID" = ct.ct_id
+FROM thecb.ctid_lookup ct
+WHERE org."Name" = ct.inst_name
