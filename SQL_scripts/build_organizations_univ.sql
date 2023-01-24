@@ -18,7 +18,7 @@ SELECT
  inst.instfice fice, 
  inst.insttype,
  inst.instlegalname "Name",
- '' "CTID",
+ 'ce-' || gen_random_uuid () "CTID",
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
@@ -100,10 +100,28 @@ AND it.inst_type_code = org.insttype;
 
 select * from thecb.organization_univ order by "Name";
 
+select * from thecb.organization_univ 
+where "Webpage" != 'TBD-IPEDS'
+order by fice;
+
+select to_json(ou) from thecb.organization_univ ou
+
+select json_agg(ou) from thecb.organization_univ ou
+
+----------
+
 /*
-Update with CTID
+Update Credential records with generated ORG CTID
 */
+UPDATE thecb.credential_univ cu
+SET "Owned By" = org."CTID"
+FROM thecb.organization_univ org
+WHERE cu.fice = org.fice 
+
+
+-- Update org ctid -- from download
 UPDATE thecb.organization_univ org
 SET "CTID" = ct.ct_id
 FROM thecb.ctid_lookup ct
 WHERE org."Name" = ct.inst_name
+

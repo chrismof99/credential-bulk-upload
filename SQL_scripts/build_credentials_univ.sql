@@ -65,4 +65,6 @@ FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 SELECT DISTINCT instlegalname 
 FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
-SELECT * from thecb.credential_univ;
+SELECT * from thecb.credential_univ
+ where "Owned By" in ('ce-481a71f8-17fe-4e1e-9a89-df242ef08d5e','ce-b8089143-9786-408f-859a-e0ea5b7ee5fd','ce-1597374d-e19c-4b8b-9182-8c817fd9c2a9', 
+					  'ce-fae94918-cabc-480c-907d-8e8305569047','ce-091cb7d3-38f6-4c5f-8fed-ab471ee5e3c3')
