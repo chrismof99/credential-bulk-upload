@@ -1,6 +1,21 @@
+/*
+File: build_credentials_ctc.sql
+
+Function: Builds up Credential table for 2 year institutions
+
+Output: Bulk staging table: thecb.credential_ctc
+
+Steps
+1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_ctc
+2. Run UPDATE to enrich with IPEDS information
+3. Run quality check queries as needed
+4. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
+    --- as part of this, the "Owned By" field is updated withOrg CTID
+5. Run SELECT to create result set for saving to bulk CSV template
+*/
 
 /*
-Build up Credential table for CTC's
+1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_ctc
 */
 
 DROP TABLE IF EXISTS thecb.credential_ctc;
@@ -36,6 +51,9 @@ WHERE (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq
   AND (to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') < '2022-11-30')
   AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2022-11-30');
 
+/*
+2. Run UPDATE to enrich with IPEDS information - institution webpage
+*/
 --Enrich with IPEDS information - institution webpage 
 UPDATE thecb.credential_univ cu
 SET "Subject Webpage" = ipeds.website
@@ -44,8 +62,21 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE cu.fice = cw.fice
   AND cw.opeid8 = ipeds.opeid8;
 
+/*
+3. Run quality check queries as needed
+*/
+
 -- Identify institutions that aren't recognized by FICE-OPEDID crosswalk
 select distinct instlegalname 
 from thecb.credential_ctc where "Subject Webpage" = 'TBD-IPEDS-Webpage';
+
+/*
+4. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
+    --- as part of this, the "Owned By" field is updated withOrg CTID
+*/
+
+/*
+5. Run SELECT to create result set for saving to bulk CSV template
+*/
 
 select * from thecb.credential_ctc;

@@ -1,6 +1,23 @@
 
 /*
-Build up Credential table for Universities
+File: build_credentials_univ.sql
+
+Function: Builds up Credential table for Universities
+
+Output: Bulk staging table: thecb.credential_univ
+
+Steps
+1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_univ
+2. Run UPDATE to enrich with IPEDS information
+3. Run quality check queries as needed
+4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+    --- as part of this, the "Owned By" field is updated withOrg CTID
+5. Run SELECT to create result set for saving to Bulk CSV template
+
+*/
+
+/*
+1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_univ
 */
 
 DROP TABLE IF EXISTS thecb.credential_univ;
@@ -38,7 +55,7 @@ WHERE
   AND (up.dateend is null or up.dateend > '2022-11-30'));
 
 /*
-Enrich with IPEDS information - institution webpage 
+2. Run UPDATE to enrich with IPEDS information (institution webpage)
 */
 -- First crosswalk
 UPDATE thecb.credential_univ cu
@@ -58,6 +75,10 @@ FROM thecb.opeid_fice_crosswalk2 cw,
 WHERE cu.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
 */
+
+/*
+3. Run quality check queries as needed
+*/
 -- Identify institutions that aren't recognized by FICE-OPEDID crosswalk
 SELECT count(distinct instlegalname) 
 FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
@@ -68,3 +89,19 @@ FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 SELECT * from thecb.credential_univ
  where "Owned By" in ('ce-481a71f8-17fe-4e1e-9a89-df242ef08d5e','ce-b8089143-9786-408f-859a-e0ea5b7ee5fd','ce-1597374d-e19c-4b8b-9182-8c817fd9c2a9', 
 					  'ce-fae94918-cabc-480c-907d-8e8305569047','ce-091cb7d3-38f6-4c5f-8fed-ab471ee5e3c3')
+					  
+
+/*
+4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+*/
+
+/*
+5. Verify CTID's where added
+*/
+SELECT DISTINCT instlegalname, "Owned By" from thecb.credential_univ
+
+/*
+
+5. Run SELECT to create result set for saving to CSV
+*/
+SELECT * from thecb.organization_univ
