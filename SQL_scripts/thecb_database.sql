@@ -182,6 +182,23 @@ DROP TABLE IF EXISTS thecb.ipeds;
 
 CREATE TABLE IF NOT EXISTS thecb.ipeds
 (
+    
+    institution_name character varying(100) COLLATE pg_catalog."default",
+	institution_name2 character varying(100) COLLATE pg_catalog."default",
+    street_address character varying(200) COLLATE pg_catalog."default",
+    city character varying(15) COLLATE pg_catalog."default",
+    zip character varying(10) COLLATE pg_catalog."default",
+	website character varying(200) COLLATE pg_catalog."default",
+	opeid8 character varying(8) COLLATE pg_catalog."default",
+	phone character varying(15) COLLATE pg_catalog."default",
+    mission_statement character varying(4000) COLLATE pg_catalog."default",
+    mission_statement_url character varying(200) COLLATE pg_catalog."default",
+	dummy character varying(200) COLLATE pg_catalog."default"
+)
+TABLESPACE pg_default; 
+
+/*CREATE TABLE IF NOT EXISTS thecb.ipeds
+(
     unitid character varying(8) COLLATE pg_catalog."default" NOT NULL,
     institution_name character varying(100) COLLATE pg_catalog."default",
     opeid8 character varying(8) COLLATE pg_catalog."default",
@@ -192,10 +209,10 @@ CREATE TABLE IF NOT EXISTS thecb.ipeds
 	website character varying(200) COLLATE pg_catalog."default",
     mission_statement character varying(4000) COLLATE pg_catalog."default",
     mission_statement_url character varying(200) COLLATE pg_catalog."default",
+	dummy character varying(200) COLLATE pg_catalog."default",
     CONSTRAINT ipeds_pkey PRIMARY KEY (unitid)
-)
+)*/ 
 
-TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS thecb.ipeds
     OWNER to postgres;
@@ -243,17 +260,41 @@ Lookup tables
 */
 
 -- Table: thecb.degreelevellookup
-DROP TABLE IF EXISTS thecb.award_type_crosswalk;
+DROP TABLE IF EXISTS thecb.univ_award_type_crosswalk;
 
-CREATE TABLE IF NOT EXISTS thecb.award_type_crosswalk
+CREATE TABLE IF NOT EXISTS thecb.univ_award_type_crosswalk
 (
-    institution_type character varying(50) COLLATE pg_catalog."default",
-	inst_type_id character varying(1) COLLATE pg_catalog."default", 
 	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
 	program_inv_cer character varying(3) COLLATE pg_catalog."default",
 	award_level_description character varying(50) COLLATE pg_catalog."default",
 	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
-	madlibs character varying(50) COLLATE pg_catalog."default"
+	madlibs character varying(50) COLLATE pg_catalog."default",
+	audience_level character varying(50) COLLATE pg_catalog."default"
+)
+
+DROP TABLE IF EXISTS thecb.hri_award_type_crosswalk;
+
+CREATE TABLE IF NOT EXISTS thecb.hri_award_type_crosswalk
+(
+	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
+	program_inv_cer character varying(3) COLLATE pg_catalog."default",
+	award_level_description character varying(50) COLLATE pg_catalog."default",
+	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
+	madlibs character varying(50) COLLATE pg_catalog."default",
+	audience_level character varying(50) COLLATE pg_catalog."default"
+)
+
+DROP TABLE IF EXISTS thecb.ctc_award_type_crosswalk;
+
+CREATE TABLE IF NOT EXISTS thecb.ctc_award_type_crosswalk
+(
+ 
+	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
+	type_major character varying(3) COLLATE pg_catalog."default",
+	award_level_description character varying(50) COLLATE pg_catalog."default",
+	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
+	madlibs character varying(50) COLLATE pg_catalog."default",
+	audience_level character varying(50) COLLATE pg_catalog."default"
 )
 
 TABLESPACE pg_default;

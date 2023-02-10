@@ -41,29 +41,20 @@ SELECT
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
- '' FEIN,
- '' DUNS,
- '' OPEID,
- '512-123-4567' "PrimaryPhoneNumber",
- '' "PrimaryPhoneExtension",
- '' "SecondaryPhoneNumber",
- '' "SecondaryPhoneExtension",
- 'chris.moffatt@touchdownllc.com' "PrimaryEmail",
+ 'TBD-CONTACT-IPEDS' "PrimaryPhoneNumber",
+ 'TBD-CONTACT-IPEDS' "PrimaryEmail",
  'CredentialOrganization' "Publishing Roles",
  'BulkUpload' "Publishing Methods",
- '' "Consuming Methods",
- 'Public' "Organization Sector",
+ 'Public' "OrganizationSector",
  insttype.ce_agent_type "Organization Types",
- 'chris.moffatt@touchdownllc.com' "Contact Email",
- 'Chris' "Contact First Name",
- 'Moffatt' "Contact Last Name",
- '' "Contact Daytime Phone Number",
+ 'Tiffani.Tatum@highered.texas.gov' "Contact Email",
+ 'Tiffani' "Contact First Name",
+ 'Tatum' "Contact Last Name",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
  'TBD-IPEDS'"PostalCode",
- 'United States'"Country",
- '' "Publishing Estimates"
+ 'United States'"Country"
  into thecb.organization_univ
 from
   thecb.univ_org_fice orgfice,
@@ -77,7 +68,8 @@ from
 4. Run UPDATE to Enrich with IPEDS data
 */
 UPDATE thecb.organization_univ org
-SET "Webpage" =ipeds.website,
+SET "PrimaryPhoneNumber" = ipeds.phone,
+    "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,
 	"Street Address" = ipeds.street_address,
 	"City" = ipeds.city,
@@ -142,7 +134,13 @@ SET "Owned By" = org."CTID"
 FROM thecb.organization_univ org
 WHERE cu.fice = org.fice 
 
+select * from thecb.organization_univ 
+where "Webpage" != 'TBD-IPEDS'
+order by fice;
 
+select * from thecb.organization_univ 
+where "Webpage" = 'TBD-IPEDS'
+order by fice;
 
 
 /*
