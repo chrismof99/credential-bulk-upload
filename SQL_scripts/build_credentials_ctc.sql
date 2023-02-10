@@ -21,6 +21,8 @@ Steps
 DROP TABLE IF EXISTS thecb.credential_ctc;
 
 SELECT
+  to_date(ca.startdate,'YYYYMMDD') "Start date",
+  to_date(ca.enddate,'YYYYMMDD') "End date",
   ca.awardid,
   ca.fice,
   ca.level,
@@ -39,7 +41,7 @@ SELECT
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
   'TBD-AWARD-TYPE' "Audience Level Type",
-  'TBD' "Lerning Delivery Type",
+  'TBD' "Learning Delivery Type",
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
 FROM thecb.ctc_clearinghouse_award ca,
@@ -50,7 +52,6 @@ WHERE (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq
   AND (ca.fice = inst.instfice AND inst.insttype = '3')
   AND (to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') < '2023-01-31')
   AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2023-01-31');
-
 
 
 /*
@@ -69,14 +70,14 @@ SET "Credential Type" = ctc_award.ctdl_credential_type,
     "Description" = 'The ' || INITCAP(ctc.title) || ' credential is ' || ctc_award.madlibs|| ' offered by the ' || INITCAP(ctc.name) || ' program at ' || ctc.instlegalname || '.',
 	 "Audience Level Type" = ctc_award.audience_level 
 FROM thecb.ctc_award_type_crosswalk ctc_award
-WHERE ctc.level = '1' AND ctc.level = ctc_award.program_inv_award_level AND substr(ctc_award.type_major,1,1) = '1'
+WHERE ctc.level = '1' AND ctc.level = ctc_award.program_inv_award_level AND substr(ctc_award.type_major,1,1) = '1';
 
 UPDATE thecb.credential_ctc ctc
 SET "Credential Type" = ctc_award.ctdl_credential_type,
     "Description" = 'The ' || INITCAP(ctc.title) || ' credential is ' || ctc_award.madlibs|| ' offered by the ' || INITCAP(ctc.name) || ' program at ' || ctc.instlegalname || '.',
 	 "Audience Level Type" = ctc_award.audience_level 
 FROM thecb.ctc_award_type_crosswalk ctc_award
-WHERE ctc.level = '1' AND ctc.level = ctc_award.program_inv_award_level AND substr(ctc_award.type_major,1,1) != '1'
+WHERE ctc.level = '1' AND ctc.level = ctc_award.program_inv_award_level AND substr(ctc_award.type_major,1,1) != '1';
 
 /*
 2. Run UPDATE to enrich with IPEDS information - institution webpage
