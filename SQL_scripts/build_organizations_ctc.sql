@@ -29,7 +29,8 @@ DROP TABLE IF EXISTS thecb.ctc_org_fice;
 select distinct fice, instlegalname 
 into thecb.ctc_org_fice from thecb.credential_ctc;
 
-select count(*) from thecb.ctc_org_fice;
+--select count(*) from thecb.ctc_org_fice;
+--select * from thecb.ctc_org_fice where instlegalname like 'Lone%'
 
 /*
 3. Run DROP, SELECT INTO query to create and populate bulk staging table: thecb.organization_ctc
@@ -118,9 +119,12 @@ WHERE ctc.fice = org.fice;
 */
 --select * from thecb.organization_ctc order by "Name";
 
+select * from thecb.organization_ctc where "Name" like 'Lone%';
+select * from thecb.ipeds where institution_name like 'Lone%';
+select * from thecb.opeid_fice_crosswalk where institution_name like 'Lone%';
 
 select * from thecb.organization_ctc
-where "Webpage" != 'TBD-IPEDS'
+where "Webpage" = 'TBD-IPEDS'
 order by fice;
 
 --select * from thecb.organization_ctc
