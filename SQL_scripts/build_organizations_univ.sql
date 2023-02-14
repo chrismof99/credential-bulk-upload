@@ -125,17 +125,12 @@ WHERE cu.fice = org.fice
 /*
 8. Run SELECT to create result set for saving to CSV
 */
---SELECT * from thecb.organization_univ
+SELECT * from thecb.organization_univ
 
-select * from thecb.organization_univ 
-where "Webpage" != 'TBD-IPEDS'
-order by fice;
+--select * from thecb.organization_univ 
+--where "Webpage" != 'TBD-IPEDS'
+--order by fice;
 
-/*
-Deprecated: Update org ctid -- from download
-
-UPDATE thecb.organization_univ org
-SET "CTID" = ct.ct_id
-FROM thecb.ctid_lookup ct
-WHERE org."Name" = ct.inst_name
-*/
+--select * from thecb.organization_univ 
+--where "Webpage" = 'TBD-IPEDS'
+--order by fice;
