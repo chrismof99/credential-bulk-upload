@@ -83,20 +83,6 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE org.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
   
--- 2nd crosswalk
-/*
-update thecb.organization_ctc org
-set "Webpage" =ipeds.website,
-    "Description" = ipeds.mission_statement,
-	"Street Address" = ipeds.street_address,
-	"City" = ipeds.city,
-	"PostalCode" = ipeds.zip
-FROM thecb.opeid_fice_crosswalk2 cw,
-  thecb.ipeds ipeds
-WHERE org.fice = cw.fice
-  and cw.opeid8 = ipeds.opeid8;
-*/
-
 
 /*
 5. Run UPDATE to add madlibs description where no mission statement found
@@ -111,31 +97,32 @@ AND it.inst_type_code = org.insttype;
 /*
 6. Run quality check queries as needed
 */
-
+/*
 -- crosswalk mismatch
 select count(distinct fice) from thecb.organization_ctc
 where "Webpage" = 'TBD-IPEDS';
+*/
 
 /*
 7. Update Credential records table with generated ORG CTID
 */
+/*
 UPDATE thecb.credential_ctc ctc
 SET "Owned By" = org."CTID"
 FROM thecb.organization_ctc org
-WHERE ctc.fice = org.fice; 
-
-select * from thecb.credential_ctc ctc
+WHERE ctc.fice = org.fice;
+*/
 
 /*
 8. Run SELECT to create result set for saving to CSV
 */
-select * from thecb.organization_ctc order by "Name";
+--select * from thecb.organization_ctc order by "Name";
 
 
 select * from thecb.organization_ctc
 where "Webpage" != 'TBD-IPEDS'
 order by fice;
 
-select * from thecb.organization_ctc
-where "Webpage" = 'TBD-IPEDS'
-order by fice;
+--select * from thecb.organization_ctc
+--where "Webpage" = 'TBD-IPEDS'
+--order by fice;

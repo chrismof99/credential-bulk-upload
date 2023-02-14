@@ -9,9 +9,9 @@ Output: Bulk staging table: thecb.credential_univ
 Steps
 1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_univ
 2. Run UPDATE to enrich with IPEDS information
-3. Run quality check queries as needed
-4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+3. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
     --- as part of this, the "Owned By" field is updated withOrg CTID
+4. Run quality check queries as needed
 5. Run SELECT to create result set for saving to Bulk CSV template
 
 */
@@ -68,42 +68,35 @@ FROM
 WHERE cu.fice = cw.fice
   AND cw.opeid8 = ipeds.opeid8;
 
--- 2nd crosswalk
-/*
-UPDATE thecb.credential_univ cu
-SET "Subject Webpage" = ipeds.website
-FROM thecb.opeid_fice_crosswalk2 cw,
-  thecb.ipeds ipeds
-WHERE cu.fice = cw.fice
-  and cw.opeid8 = ipeds.opeid8;
-*/
+			  
 
 /*
-3. Run quality check queries as needed
+3. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+*/
+UPDATE thecb.credential_univ cu
+SET "Owned By" = org."CTID"
+FROM thecb.organization_univ org
+WHERE cu.fice = org.fice;
+
+/*
+4. Run quality check queries as needed
 */
 -- Identify institutions that aren't recognized by FICE-OPEDID crosswalk
-SELECT count(distinct instlegalname) 
-FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
+--SELECT count(distinct instlegalname) 
+--FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
-SELECT DISTINCT instlegalname 
-FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
-
-					  
-
-/*
-4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
-*/
-
-/*
-5. Verify CTID's where added
-*/
-SELECT DISTINCT instlegalname, "Owned By" from thecb.credential_univ;
+--SELECT DISTINCT instlegalname 
+--FROM thecb.credential_univ where "Subject Webpage" = 'TBD-IPEDS-Webpage';
+--SELECT DISTINCT instlegalname, "Owned By" from thecb.credential_univ;
 
 /*
 
 5. Run SELECT to create result set for saving to CSV
 */
 
+SELECT * from thecb.credential_univ;
+
+/*
 SELECT * from thecb.credential_univ 
 WHERE "Subject Webpage" != 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
@@ -111,3 +104,4 @@ ORDER BY  instlegalname
 SELECT * from thecb.credential_univ 
 WHERE "Subject Webpage" = 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
+*/

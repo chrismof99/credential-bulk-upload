@@ -93,7 +93,7 @@ AND it.inst_type_code = org.insttype;
 /*
 6. Run quality check queries as needed
 */
-
+/*
 select count(*) from thecb.hri_org_fice;
 
 select * from thecb.organization_hri order by "Name";
@@ -108,27 +108,29 @@ where "Webpage" = 'TBD-IPEDS';
 
 select distinct "Name" from thecb.organization_hri
 where "Webpage" = 'TBD-IPEDS';
-
+*/
 
 /*
 7. Update Credential records table with generated ORG CTID
 */
 
+/*
 UPDATE thecb.credential_hri hri
 SET "Owned By" = org."CTID"
 FROM thecb.organization_hri org
-WHERE hri.fice = org.fice 
-
-select * from thecb.organization_hri 
-where "Webpage" != 'TBD-IPEDS'
-order by fice;
-
-select * from thecb.organization_hri 
-where "Webpage" = 'TBD-IPEDS'
-order by fice;
+WHERE hri.fice = org.fice;
+*/
 
 
 /*
 8. Run SELECT to create result set for saving to CSV
 */
-SELECT * from thecb.organization_hri
+--SELECT * from thecb.organization_hri
+
+select * from thecb.organization_hri 
+where "Webpage" != 'TBD-IPEDS'
+order by fice;
+
+--select * from thecb.organization_hri 
+--where "Webpage" = 'TBD-IPEDS'
+--order by fice;

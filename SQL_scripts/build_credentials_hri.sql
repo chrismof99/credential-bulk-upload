@@ -8,9 +8,9 @@ Output: Bulk staging table: thecb.credential_hri
 Steps
 1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_univ
 2. Run UPDATE to enrich with IPEDS information
-3. Run quality check queries as needed
-4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+3. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
     --- as part of this, the "Owned By" field is updated withOrg CTID
+4. Run quality check queries as needed
 5. Run SELECT to create result set for saving to Bulk CSV template
 
 */
@@ -91,32 +91,39 @@ FROM
   thecb.opeid_fice_crosswalk cw,
   thecb.ipeds ipeds
 WHERE hri.fice = cw.fice 
-AND cw.opeid8 = ipeds.opeid8;
+AND cw.opeid8 = ipeds.opeid8;				  
+
+/*
+3. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
+*/
+
+UPDATE thecb.credential_hri hri
+SET "Owned By" = org."CTID"
+FROM thecb.organization_hri org
+WHERE hri.fice = org.fice;
 
 /*
 3. Run quality check queries as needed
 */
+/*
 -- Identify institutions that aren't recognized by FICE-OPEDID crosswalk
 SELECT count(distinct instlegalname) 
 FROM thecb.credential_hri where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
 SELECT DISTINCT instlegalname 
-FROM thecb.credential_hri where "Subject Webpage" = 'TBD-IPEDS-Webpage';					  
+FROM thecb.credential_hri where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
-/*
-4. Move to the script for creating the matching staging table for organizations (build_organizations_univ.sql)
-*/
-
-/*
-5. Verify CTID's where added
-*/
+--Verify CTID's where added
 SELECT DISTINCT instlegalname, "Owned By" from thecb.credential_hri
+*/
 
 /*
-
 5. Run SELECT to create result set for saving to CSV
 */
 
+SELECT * from thecb.credential_hri ;
+
+/*
 SELECT * from thecb.credential_hri 
 WHERE "Subject Webpage" != 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
@@ -125,9 +132,4 @@ SELECT * from thecb.credential_hri
 WHERE "Subject Webpage" = 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
 
-SELECT * from thecb.credential_hri 
-where degreelevel = '2'
-and degreename like 'CER%'
---WHERE "Credential Type" = 'TYPE_LOOKUP_ERROR 1'
---AND "Credential Name" like 'CER%'
-ORDER BY  instlegalname
+*/

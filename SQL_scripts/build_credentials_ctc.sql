@@ -8,9 +8,10 @@ Output: Bulk staging table: thecb.credential_ctc
 Steps
 1. Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_ctc
 2. Run UPDATE to enrich with IPEDS information
-3. Run quality check queries as needed
-4. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
+
+3. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
     --- as part of this, the "Owned By" field is updated withOrg CTID
+4. Run quality check queries as needed
 5. Run SELECT to create result set for saving to bulk CSV template
 */
 
@@ -32,7 +33,7 @@ SELECT
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'ctc_clearinghouse' || '_' || ca.awardid || '_' || ca.fice || '_' || ca.cip6 || '_' || ca.seq || '_' || ca.abbrev "External Identifier",
-  INITCAP(ca.title) "Credential Name",
+  ca.title "Credential Name",
   'TBD-AWARD-TYPE' "Credential Type",
   'TBD-AWARD-TYPE' "Description",
   'TBD-IPEDS-Webpage' "Subject Webpage",
@@ -51,9 +52,9 @@ FROM thecb.ctc_clearinghouse_award ca,
 WHERE (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
   AND (ca.fice = inst.instfice AND inst.insttype = '3')
   AND (to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') < '2023-01-31')
-  AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2023-01-31');
+  AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2023-01-31' OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC');
 
-
+--select * from thecb.credential_ctc
 /*
 1.b Enrich with award-type info -- multiple passes
 */
@@ -90,21 +91,27 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE ctc.fice = cw.fice
   AND cw.opeid8 = ipeds.opeid8;
 
+
 /*
-3. Run quality check queries as needed
+3. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
+    --- as part of this, the "Owned By" field is updated withOrg CTID
+*/
+UPDATE thecb.credential_ctc ctc
+SET "Owned By" = org."CTID"
+FROM thecb.organization_ctc org
+WHERE ctc.fice = org.fice; 
+
+/*
+4. Run quality check queries as needed
 */
 
 -- Identify institutions that aren't recognized by FICE-OPEDID crosswalk
-select distinct instlegalname 
-from thecb.credential_ctc where "Subject Webpage" != 'TBD-IPEDS-Webpage';
+--select distinct instlegalname 
+--from thecb.credential_ctc where "Subject Webpage" != 'TBD-IPEDS-Webpage';
 
-select distinct instlegalname 
-from thecb.credential_ctc where "Subject Webpage" = 'TBD-IPEDS-Webpage';
+--select distinct instlegalname 
+--from thecb.credential_ctc where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
-/*
-4. Move to the script for creating the matching staging table for organizations (build_organizations_ctc.sql)
-    --- as part of this, the "Owned By" field is updated withOrg CTID
-*/
 
 /*
 5. Run SELECT to create result set for saving to bulk CSV template
@@ -112,6 +119,7 @@ from thecb.credential_ctc where "Subject Webpage" = 'TBD-IPEDS-Webpage';
 
 select * from thecb.credential_ctc;
 
+/*
 SELECT * from thecb.credential_ctc 
 WHERE "Subject Webpage" != 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
@@ -119,3 +127,4 @@ ORDER BY  instlegalname
 SELECT * from thecb.credential_ctc 
 WHERE "Subject Webpage" = 'TBD-IPEDS-Webpage'
 ORDER BY  instlegalname
+*/

@@ -80,21 +80,6 @@ WHERE org.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
   
 
--- 2nd crosswalk - WIP
-/*
-update thecb.organization_univ org
-set "Webpage" =ipeds.website,
-    "Description" = ipeds.mission_statement,
-	"Street Address" = ipeds.street_address,
-	"City" = ipeds.city,
-	"PostalCode" = ipeds.zip
-FROM thecb.opeid_fice_crosswalk2 cw,
-  thecb.ipeds ipeds
-WHERE org.fice = cw.fice
-  and cw.opeid8 = ipeds.opeid8;
-*/
-
-
 /* 
 5. Run UPDATE to add madlibs description where no mission statement found
 */
@@ -108,7 +93,7 @@ AND it.inst_type_code = org.insttype;
 /*
 6. Run quality check queries as needed
 */
-
+/*
 select count(*) from thecb.univ_org_fice;
 
 select * from thecb.organization_univ order by "Name";
@@ -123,31 +108,28 @@ where "Webpage" = 'TBD-IPEDS';
 
 select distinct "Name" from thecb.organization_univ
 where "Webpage" = 'TBD-IPEDS';
-
+*/
 
 /*
 7. Update Credential records table with generated ORG CTID
 */
 
+/*
 UPDATE thecb.credential_univ cu
 SET "Owned By" = org."CTID"
 FROM thecb.organization_univ org
 WHERE cu.fice = org.fice 
-
-select * from thecb.organization_univ 
-where "Webpage" != 'TBD-IPEDS'
-order by fice;
-
-select * from thecb.organization_univ 
-where "Webpage" = 'TBD-IPEDS'
-order by fice;
+*/
 
 
 /*
 8. Run SELECT to create result set for saving to CSV
 */
-SELECT * from thecb.organization_univ
+--SELECT * from thecb.organization_univ
 
+select * from thecb.organization_univ 
+where "Webpage" != 'TBD-IPEDS'
+order by fice;
 
 /*
 Deprecated: Update org ctid -- from download
