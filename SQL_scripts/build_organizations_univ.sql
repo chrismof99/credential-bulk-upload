@@ -42,7 +42,7 @@ SELECT
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
  'TBD-CONTACT-IPEDS' "PrimaryPhoneNumber",
- 'TBD-CONTACT-IPEDS' "PrimaryEmail",
+ 'Tiffani.Tatum@highered.texas.gov' "PrimaryEmail",
  'CredentialOrganization' "Publishing Roles",
  'BulkUpload' "Publishing Methods",
  'Public' "OrganizationSector",

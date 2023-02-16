@@ -101,6 +101,7 @@ CTC ipeds fixup
 -- Remove any/all Lone Star and add manually
 --select * from thecb.ipeds where institution_name like 'Lone Star%'
 delete from thecb.ipeds where institution_name = 'Lone Star College System';
+delete from thecb.opeid_fice_crosswalk where institution_name = 'Lone Star College System';
 
 -- Lone Star College - Kingwood
 --select * from thecb.ipeds where institution_name like 'Lone Star College - Kingwood' 

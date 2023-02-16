@@ -125,7 +125,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS thecb.ctc_clearinghouse_program
     OWNER to postgres;
 	
--- CTC CLEARNING HOUSE AWARD
+-- CTC CLEARING HOUSE AWARD
 -- Table: thecb.ctc_clearinghouse_award
 
 DROP TABLE IF EXISTS thecb.ctc_clearinghouse_award;
@@ -173,6 +173,42 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS thecb.ctc_clearinghouse_award
     OWNER to postgres;
 	
+-- DISTANCEAWARD table
+-- Table: thecb.dist_DistanceAward
+DROP TABLE IF EXISTS thecb.dist_DistanceAward;
+
+CREATE TABLE IF NOT EXISTS thecb.dist_DistanceAward
+(
+	DistanceAwardID integer NOT NULL,
+	InstType character varying(1) COLLATE pg_catalog."default",
+	FiceCode character varying(6) COLLATE pg_catalog."default",
+	ProgramCip character varying(8) COLLATE pg_catalog."default",
+	ProgramCipName character varying(200) COLLATE pg_catalog."default",
+	CipSub character varying(5) COLLATE pg_catalog."default",
+	AwardCip character varying(8) COLLATE pg_catalog."default",
+	AwardCipName character varying(200) COLLATE pg_catalog."default",
+	Award character varying(8) COLLATE pg_catalog."default",
+	AwardLevel character varying(1) COLLATE pg_catalog."default",
+	AwardStatus character varying(10) COLLATE pg_catalog."default",
+	StartDate date,
+	EndDate date,
+	DistanceTypeID character varying(1) COLLATE pg_catalog."default",
+	DistanceLocationID character varying(10) COLLATE pg_catalog."default",
+	AwardSubmitDate date,
+	Deleted character varying(1) COLLATE pg_catalog."default",
+	Active character varying(1) COLLATE pg_catalog."default",
+	CreatedBy character varying(100) COLLATE pg_catalog."default",
+	CreatedDate date,
+	UpdatedBy character varying(100) COLLATE pg_catalog."default",
+	UpdatedDate date,
+    CONSTRAINT dist_DistanceAward_pkey PRIMARY KEY (DistanceAwardID)
+) TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS thecb.dist_DistanceAward
+    OWNER to postgres;
+
+
+
 /*
 IPEDS artifacts
 */
@@ -194,28 +230,9 @@ CREATE TABLE IF NOT EXISTS thecb.ipeds
     mission_statement character varying(4000) COLLATE pg_catalog."default",
     mission_statement_url character varying(200) COLLATE pg_catalog."default",
 	dummy character varying(200) COLLATE pg_catalog."default"
-)
-TABLESPACE pg_default; 
+) TABLESPACE pg_default; 
 
-/*CREATE TABLE IF NOT EXISTS thecb.ipeds
-(
-    unitid character varying(8) COLLATE pg_catalog."default" NOT NULL,
-    institution_name character varying(100) COLLATE pg_catalog."default",
-    opeid8 character varying(8) COLLATE pg_catalog."default",
-	institution_name2 character varying(100) COLLATE pg_catalog."default",
-	street_address character varying(200) COLLATE pg_catalog."default",
-    city character varying(15) COLLATE pg_catalog."default",
-    zip character varying(10) COLLATE pg_catalog."default",
-	website character varying(200) COLLATE pg_catalog."default",
-    mission_statement character varying(4000) COLLATE pg_catalog."default",
-    mission_statement_url character varying(200) COLLATE pg_catalog."default",
-	dummy character varying(200) COLLATE pg_catalog."default",
-    CONSTRAINT ipeds_pkey PRIMARY KEY (unitid)
-)*/ 
-
-
-ALTER TABLE IF EXISTS thecb.ipeds
-    OWNER to postgres;
+ALTER TABLE IF EXISTS thecb.ipeds OWNER to postgres;
 	
 -- Table: thecb.opeid_fice_crosswalk
 
@@ -229,12 +246,9 @@ CREATE TABLE IF NOT EXISTS thecb.opeid_fice_crosswalk
     dupflag character varying(1) COLLATE pg_catalog."default",
     issue_flag character varying(1) COLLATE pg_catalog."default",
     CONSTRAINT crosswalk_pkey PRIMARY KEY (opeid8)
-)
+) TABLESPACE pg_default;
 
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS thecb.opeid_fice_crosswalk
-    OWNER to postgres;
+ALTER TABLE IF EXISTS thecb.opeid_fice_crosswalk OWNER to postgres;
 	
 
 -- Updated FICE OPEID crosswalk
@@ -288,22 +302,18 @@ DROP TABLE IF EXISTS thecb.ctc_award_type_crosswalk;
 
 CREATE TABLE IF NOT EXISTS thecb.ctc_award_type_crosswalk
 (
- 
 	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
 	type_major character varying(3) COLLATE pg_catalog."default",
+	abbrev character varying(3) COLLATE pg_catalog."default",
 	award_level_description character varying(50) COLLATE pg_catalog."default",
 	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
 	madlibs character varying(50) COLLATE pg_catalog."default",
 	audience_level character varying(50) COLLATE pg_catalog."default"
-)
+) TABLESPACE pg_default;
 
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS thecb.award_type_crosswalk
-    OWNER to postgres;
+ALTER TABLE IF EXISTS thecb.award_type_crosswalk OWNER to postgres;
 	
 -- Table: thecb.inst_type_lookup
-
 DROP TABLE IF EXISTS thecb.inst_type_lookup;
 
 CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
@@ -313,9 +323,20 @@ CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
 	include_flag character varying(1) COLLATE pg_catalog."default",
     ce_agent_type character varying(50) COLLATE pg_catalog."default",
 	madlibs character varying(50) COLLATE pg_catalog."default"
-)
-
-TABLESPACE pg_default;
+) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS thecb.inst_type_lookup
     OWNER to postgres;
+	
+	
+	
+-- Distance Ed Lookup
+
+DROP TABLE IF EXISTS thecb.distance_ed_crosswalk;
+
+CREATE TABLE IF NOT EXISTS thecb.distance_ed_crosswalk
+(
+	distance_ed_typeid character varying(1) COLLATE pg_catalog."default",
+	distance_ed_description character varying(50) COLLATE pg_catalog."default",
+	ce_delivery_type character varying(20) COLLATE pg_catalog."default"
+);

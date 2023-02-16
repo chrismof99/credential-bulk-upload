@@ -42,7 +42,7 @@ SELECT
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
  'TBD-CONTACT-IPEDS' "PrimaryPhoneNumber",
- 'TBD-CONTACT-IPEDS' "PrimaryEmail",
+ 'Tiffani.Tatum@highered.texas.gov' "PrimaryEmail",
  'CredentialOrganization' "Publishing Roles",
  'BulkUpload' "Publishing Methods",
  'Public' "OrganizationSector",
@@ -125,11 +125,11 @@ WHERE hri.fice = org.fice;
 /*
 8. Run SELECT to create result set for saving to CSV
 */
---SELECT * from thecb.organization_hri
+SELECT * from thecb.organization_hri;
 
-select * from thecb.organization_hri 
-where "Webpage" != 'TBD-IPEDS'
-order by fice;
+--select * from thecb.organization_hri 
+--where "Webpage" = 'TBD-IPEDS'
+--order by fice;
 
 --select * from thecb.organization_hri 
 --where "Webpage" = 'TBD-IPEDS'
