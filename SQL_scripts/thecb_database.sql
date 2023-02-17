@@ -273,46 +273,6 @@ ALTER TABLE IF EXISTS thecb.opeid_fice_crosswalk2
 Lookup tables
 */
 
--- Table: thecb.degreelevellookup
-DROP TABLE IF EXISTS thecb.univ_award_type_crosswalk;
-
-CREATE TABLE IF NOT EXISTS thecb.univ_award_type_crosswalk
-(
-	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
-	program_inv_cer character varying(3) COLLATE pg_catalog."default",
-	award_level_description character varying(50) COLLATE pg_catalog."default",
-	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
-	madlibs character varying(50) COLLATE pg_catalog."default",
-	audience_level character varying(50) COLLATE pg_catalog."default"
-)
-
-DROP TABLE IF EXISTS thecb.hri_award_type_crosswalk;
-
-CREATE TABLE IF NOT EXISTS thecb.hri_award_type_crosswalk
-(
-	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
-	program_inv_cer character varying(3) COLLATE pg_catalog."default",
-	award_level_description character varying(50) COLLATE pg_catalog."default",
-	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
-	madlibs character varying(50) COLLATE pg_catalog."default",
-	audience_level character varying(50) COLLATE pg_catalog."default"
-)
-
-DROP TABLE IF EXISTS thecb.ctc_award_type_crosswalk;
-
-CREATE TABLE IF NOT EXISTS thecb.ctc_award_type_crosswalk
-(
-	program_inv_award_level character varying(1) COLLATE pg_catalog."default",
-	type_major character varying(3) COLLATE pg_catalog."default",
-	abbrev character varying(3) COLLATE pg_catalog."default",
-	award_level_description character varying(50) COLLATE pg_catalog."default",
-	ctdl_credential_type character varying(50) COLLATE pg_catalog."default",
-	madlibs character varying(50) COLLATE pg_catalog."default",
-	audience_level character varying(50) COLLATE pg_catalog."default"
-) TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS thecb.award_type_crosswalk OWNER to postgres;
-	
 -- Table: thecb.inst_type_lookup
 DROP TABLE IF EXISTS thecb.inst_type_lookup;
 
@@ -328,15 +288,3 @@ CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
 ALTER TABLE IF EXISTS thecb.inst_type_lookup
     OWNER to postgres;
 	
-	
-	
--- Distance Ed Lookup
-
-DROP TABLE IF EXISTS thecb.distance_ed_crosswalk;
-
-CREATE TABLE IF NOT EXISTS thecb.distance_ed_crosswalk
-(
-	distance_ed_typeid character varying(1) COLLATE pg_catalog."default",
-	distance_ed_description character varying(50) COLLATE pg_catalog."default",
-	ce_delivery_type character varying(20) COLLATE pg_catalog."default"
-);

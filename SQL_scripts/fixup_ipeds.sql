@@ -8,7 +8,12 @@ Add new rows to IPEDS & FICE crosswalk manually -- provided by THECB (Jana)
 -- Universities - Sul Ross State University Rio Grande College
 --select * from thecb.ipeds where institution_name like 'Sul%'
 --select * from thecb.opeid_fice_crosswalk where institution_name like 'Sul%'
-delete from thecb.ipeds where institution_name = 'Sul Ross State University Rio Grande College'
+delete from thecb.ipeds where institution_name = 'Sul Ross State University Rio Grande College';
+
+UPDATE thecb.opeid_fice_crosswalk SET fice = '003626' WHERE institution_name = 'Tarrant County College District';
+UPDATE thecb.opeid_fice_crosswalk SET fice = '029137' WHERE institution_name = 'San Jacinto Community College';
+UPDATE thecb.opeid_fice_crosswalk SET fice = '009331' WHERE institution_name = 'Dallas College';
+
 
 INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000020', 'Sul Ross State University Rio Grande College', '000020', NULL, NULL);
 
@@ -192,6 +197,19 @@ INSERT INTO thecb.ipeds VALUES (
 	'Lone Star College - Connect Campus', 'Lone Star College - Connect Campus',
 	'20515 SH 249', 'Houston','77070', 'https://www.lonestar.edu/','00000823', '2812905000',
 	NULL,'https://www.lonestar.edu/', NULL);
+	
+-- Texas State Technical College Central Office
+--select * from thecb.ipeds where institution_name like 'Texas State Technical College Central Office'
+--select * from thecb.opeid_fice_crosswalk where institution_name like 'Texas State Technical College Central Office'
+delete from thecb.opeid_fice_crosswalk where institution_name = 'Texas State Technical College Central Office';
+delete from thecb.ipeds where institution_name = 'Texas State Technical College Central Office';
+
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00003634', 'Texas State Technical College Central Office', '009642', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'Texas State Technical College Central Office', 'Texas State Technical College Central Office',
+	'1304 San Antonio St #106b', 'Austin','78701', 'https://www.tstc.edu/','00003634', '8007928784',
+	NULL,'https://www.tstc.edu/about/mission', NULL);
 
 /*
 URL Fixup

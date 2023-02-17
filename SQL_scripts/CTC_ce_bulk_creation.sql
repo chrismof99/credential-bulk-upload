@@ -2,6 +2,34 @@
 CTC - combined Organization and Credential
 */
 
+/* 
+* BOOTSTRAP
+*/
+
+DROP TABLE IF EXISTS thecb.ctc_clearinghouse_award_fixup;
+SELECT * INTO thecb.ctc_clearinghouse_award_fixup FROM thecb.ctc_clearinghouse_award ;
+
+--select title , regexp_replace(title, '\s*\(\d+\.\d+\)', '') from thecb.ctc_clearinghouse_award_fixup where title like '(%'
+--select title , regexp_replace(title, '\s*\(\d+\.\d+\)', '') from thecb.ctc_clearinghouse_award_fixup where title like '%)';
+
+-- Remove pre-pended parentheses
+UPDATE thecb.ctc_clearinghouse_award_fixup
+SET title = regexp_replace(title, '\s*\(\d+\.\d+\)', '')
+where title like '(%' OR title like '%)';
+
+UPDATE thecb.ctc_clearinghouse_award_fixup
+SET title = regexp_replace(title, '\(\d+\.\d+-\d+\)', '')
+where title like '(%';
+
+/*UPDATE thecb.ctc_clearinghouse_award_fixup
+SET title = regexp_replace(title, '\(SEQ\s\d+\)', '')
+where title like '(%';
+
+UPDATE thecb.ctc_clearinghouse_award_fixup
+SET title = regexp_replace(title, '\(\d{3}\)', '')
+where title like '(%';
+*/
+
 /*
 CREDENTIAL - PART 1
 */
@@ -39,11 +67,12 @@ SELECT
   -- AUDIENCE LEVEL TYPE INLINE,
   CASE
   	WHEN ca.level = '1' THEN 'AssociatesDegreeLevel'
-	WHEN ca.level in ('0','2', '3','4') THEN 'PostSecondaryLevel'
+	WHEN ca.level in ('2', '3','4') THEN 'PostSecondaryLevel'
 	WHEN ca.level = '7' THEN 'BachelorsDegreeLevel'
+	WHEN ca.level = '0' THEN 'PostSecondaryLevel'
 	ELSE 'ERROR-UNMATCHED'
   END "Audience Level Type",
-  'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
+  'The ' || ca_fixup.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
   'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
   'English-en' "Language",
@@ -53,10 +82,13 @@ SELECT
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
 FROM thecb.ctc_clearinghouse_award ca,
+  thecb.ctc_clearinghouse_award_fixup ca_fixup,
   thecb.ctc_clearinghouse_program cp,
   thecb.institution inst
 WHERE (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
   AND (ca.fice = inst.instfice AND inst.insttype = '3')
+  AND ca.level != '6'
+  AND (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
   AND (to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') < '2023-01-31')
   AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2023-01-31' OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC');
 
@@ -71,7 +103,7 @@ UPDATE thecb.credential_ctc ctc
 SET "Learning Delivery Type" = 
     CASE
 		WHEN da.distancetypeid in ('1','2','6') THEN 'OnlineOnly'
-		WHEN da.distancetypeid in ('3','4') THEN 'OnlineOnly'
+		WHEN da.distancetypeid in ('3','4') THEN 'BlendedDelivery'
 		WHEN da.distancetypeid in ('5') THEN 'InPerson'
 		ELSE "Learning Delivery Type"
 	END 
@@ -170,3 +202,5 @@ WHERE ctc.fice = org.fice;
 -- Run SELECT to create result set for saving to bulk CSV template
 select * from thecb.organization_ctc order by "Name";
 select * from thecb.credential_ctc order by instlegalname;
+
+
