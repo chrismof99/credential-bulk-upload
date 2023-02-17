@@ -11,13 +11,13 @@ DROP TABLE IF EXISTS thecb.credential_univ;
 
 SELECT 
   -- Tracking, lookup fields
-  up.fice,
-  up.programcip,
-  up.programcipsub,
+  ud.fice,
+  ud.programcip,
+  ud.programcipsub,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'univ_degree' || '_' || ud.tableseq || '_' || ud.fice || '_' || ud.programcip || '_' || ud.programcipsub  "External Identifier",
-  ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
+--  ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
   -- AWARD TYPE INLINE 
   CASE
   	WHEN ud.degreelevel = '1' AND ud.degreename != 'CER' THEN 'AssociateDegree'
@@ -36,9 +36,7 @@ SELECT
 	WHEN ud.degreelevel in ('4', '5') THEN 'DoctoralDegreeLevel'
 	ELSE 'ERROR-UNMATCHED'
   END "Audience Level Type",-- univ_award.ctdl_credential_type "Credential Type", 
- -- Madlibs construction for description
-  --'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is ' || univ_award.madlibs || ' offered by ' || inst.instlegalname || '.' "Description",
-  'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is offered by ' || inst.instlegalname || '.' "Description",
+  'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is offered by ' || inst.instlegalname || '.' "Description",  -- Madlibs construction for description
   'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
   'English-en' "Language",
@@ -47,18 +45,13 @@ SELECT
   'TBD-DISTANCE' "Learning Delivery Type",   -- Default to InPerson
   substring (ud.programcip,1,2) || '.' || substring (ud.programcip,3,4) "CIP List"
 INTO thecb.credential_univ
-FROM thecb.univ_degree ud,
-  thecb.univ_degree_program up, 
-  thecb.institution inst 
- -- thecb.univ_award_type_crosswalk univ_award
+FROM thecb.univ_degree ud
+    LEFT JOIN thecb.institution inst on ud.fice = inst.instfice
+	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
 WHERE
-  -- Join Univ and Univ_Program tables
-  (ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub)
-  -- Join with Institution table to get institution type (Public Universities and Baylor)
-  AND (up.fice = inst.instfice AND inst.insttype in ('1', '6'))
-  -- Filter by start/end dates
-  AND ((up.datestart = null or up.datestart < CURRENT_DATE) 
-  AND (up.dateend is null or up.dateend > CURRENT_DATE));
+  (ud.datestart = null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
+  AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
+  AND inst.insttype in ('1', '6'); -- Public universities and Baylor
 
 -- Run UPDATE to enrich with IPEDS information (institution webpage)
 UPDATE thecb.credential_univ cu

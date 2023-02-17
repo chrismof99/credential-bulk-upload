@@ -57,7 +57,7 @@ SELECT
   CASE
   	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAA' THEN 'AssociateOfAppliedArtsDegree'
 	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAS' THEN 'AssociateOfAppliedScienceDegree'
-	WHEN ca.level = '1' AND ca.typemajor = '1' THEN 'Associate'
+	WHEN ca.level = '1' AND ca.typemajor = '1' THEN 'AssociateDegree'
 	WHEN ca.level in ('2','3','4') THEN 'Certificate'
 	WHEN ca.level = '6' THEN 'ERROR-EXCLUDE'
 	WHEN ca.level = '7' THEN 'BachelorDegree'
@@ -81,16 +81,15 @@ SELECT
   'TBD-DISTANCE' "Learning Delivery Type",
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
-FROM thecb.ctc_clearinghouse_award ca,
-  thecb.ctc_clearinghouse_award_fixup ca_fixup,
-  thecb.ctc_clearinghouse_program cp,
-  thecb.institution inst
-WHERE (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
-  AND (ca.fice = inst.instfice AND inst.insttype = '3')
-  AND ca.level != '6'
-  AND (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
-  AND (to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') < '2023-01-31')
-  AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > '2023-01-31' OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC');
+FROM thecb.ctc_clearinghouse_award ca
+   LEFT JOIN thecb.institution inst ON ca.fice = inst.instfice
+   LEFT JOIN thecb.ctc_clearinghouse_program cp ON (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
+   LEFT JOIN thecb.ctc_clearinghouse_award_fixup ca_fixup ON (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
+WHERE
+	(to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') <= CURRENT_DATE)
+    AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > CURRENT_DATE OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC')
+	AND inst.insttype = '3'
+	AND ca.level != '6';
 
 -- Run UPDATE to enrich with IPEDS information - institution webpage
 UPDATE thecb.credential_ctc ctc

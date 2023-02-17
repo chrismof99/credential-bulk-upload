@@ -11,9 +11,9 @@ DROP TABLE IF EXISTS thecb.credential_hri;
 SELECT 
   -- Tracking, lookup fields
   ud.fice,
-  up.programcip,
-  up.programcipsub,
-    ud.degreename,
+  ud.programcip,
+  ud.programcipsub,
+  ud.degreename,
   up.name,
   ud.degreelevel,
   inst.instlegalname,
@@ -39,7 +39,6 @@ SELECT
 	WHEN ud.degreelevel in ('4', '5') THEN 'DoctoralDegreeLevel'
 	ELSE 'ERROR-UNMATCHED'
   END "Audience Level Type",
-  --'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is ' || 'TBD-AWARD-TYPE' || ' offered by ' || inst.instlegalname || '.' "Description", -- Madlibs construction for description
   'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is offered by ' || inst.instlegalname || '.' "Description", -- Madlibs construction for description
   'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
@@ -49,17 +48,13 @@ SELECT
   'TBD-DISTANCE' "Learning Delivery Type",
   substring (ud.programcip,1,2) || '.' || substring (ud.programcip,3,4) "CIP List"
 INTO thecb.credential_hri
-FROM thecb.univ_degree ud,
-  thecb.univ_degree_program up, 
-  thecb.institution inst
+FROM thecb.univ_degree ud
+    LEFT JOIN thecb.institution inst on ud.fice = inst.instfice
+	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
 WHERE
-  -- Join Univ and Univ_Program tables
-  (ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub)
-  -- Join with Institution table to get institution type
-  AND (up.fice = inst.instfice AND inst.insttype = '5')
-  -- Filter by start/end dates
-  AND ((up.datestart = null or up.datestart < CURRENT_DATE) 
-  AND (up.dateend is null or up.dateend > CURRENT_DATE));
+  (ud.datestart = null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
+  AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
+  AND inst.insttype = '5'; -- Public universities and Baylor
 
 -- Run UPDATE to enrich with IPEDS information (institution webpage)
 UPDATE thecb.credential_hri hri
