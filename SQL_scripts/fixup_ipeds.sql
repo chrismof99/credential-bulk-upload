@@ -47,7 +47,7 @@ INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000089', 'Texas A&M University
 INSERT INTO thecb.ipeds VALUES (
 	'Texas A&M University System Health Science Center', 'Texas A&M University System Health Science Center',
 	'8441 Riverside Parkway', 'Bryan','77807', 'https://health.tamu.edu/','00000089', '9794369100',
-	'We’re creating the next generation of innovators, advocates, caregivers and life-savers. Founded in 1999 to bring together the health professions of Texas A&M, our relatively young, nimble attitude allows us to keep up with a rapidly evolving health care landscape, while not abandoning our land-grant origins. Through cutting-edge medical research, service and education, we’re addressing the health care needs of the 21st century.',
+	'We are creating the next generation of innovators, advocates, caregivers and life-savers. Founded in 1999 to bring together the health professions of Texas A&M, our relatively young, nimble attitude allows us to keep up with a rapidly evolving health care landscape, while not abandoning our land-grant origins. Through cutting-edge medical research, service and education, we’re addressing the health care needs of the 21st century.',
 	 NULL, NULL);
 
 -- Sam Houston State University Medical School
@@ -217,6 +217,11 @@ URL Fixup
 UPDATE thecb.ipeds
 SET mission_statement = 'Sul Ross State University in Far West Texas and the Middle Rio Grande Region boasts a combination of small class sizes, an appreciation of both fine arts and the sciences and popular professional programs in a relaxed, friendly environment.'
 WHERE institution_name = 'Sul Ross State University';
+
+
+-- todo The University of Texas Health Science Center at Tyler 
+-- phone:903-877-7777
+-- web https://www.uthct.edu/
 
 -- Fixup webpage entries in IPEDS -- ensure has "https:" in the prefix
 */

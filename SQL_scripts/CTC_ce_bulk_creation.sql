@@ -2,34 +2,6 @@
 CTC - combined Organization and Credential
 */
 
-/* 
-* BOOTSTRAP
-*/
-
-DROP TABLE IF EXISTS thecb.ctc_clearinghouse_award_fixup;
-SELECT * INTO thecb.ctc_clearinghouse_award_fixup FROM thecb.ctc_clearinghouse_award ;
-
---select title , regexp_replace(title, '\s*\(\d+\.\d+\)', '') from thecb.ctc_clearinghouse_award_fixup where title like '(%'
---select title , regexp_replace(title, '\s*\(\d+\.\d+\)', '') from thecb.ctc_clearinghouse_award_fixup where title like '%)';
-
--- Remove pre-pended parentheses
-UPDATE thecb.ctc_clearinghouse_award_fixup
-SET title = regexp_replace(title, '\s*\(\d+\.\d+\)', '')
-where title like '(%' OR title like '%)';
-
-UPDATE thecb.ctc_clearinghouse_award_fixup
-SET title = regexp_replace(title, '\(\d+\.\d+-\d+\)', '')
-where title like '(%';
-
-/*UPDATE thecb.ctc_clearinghouse_award_fixup
-SET title = regexp_replace(title, '\(SEQ\s\d+\)', '')
-where title like '(%';
-
-UPDATE thecb.ctc_clearinghouse_award_fixup
-SET title = regexp_replace(title, '\(\d{3}\)', '')
-where title like '(%';
-*/
-
 /*
 CREDENTIAL - PART 1
 */
@@ -38,17 +10,21 @@ CREDENTIAL - PART 1
 DROP TABLE IF EXISTS thecb.credential_ctc;
 
 SELECT
-  to_date(ca.startdate,'YYYYMMDD') "Start date",
-  to_date(ca.enddate,'YYYYMMDD') "End date",
   ca.awardid,
   ca.fice,
-  cp.cip6,
-  cp.seq,
-  ca.level,
-  ca.title,
+  ca.cip6,
+  ca.cipsuffix,
+  ca.seq,
+  cp.cip6 programcip6,
+  cp.cipsuffix programcipsuffix,
+  cp.seq programseq,
   ca.typemajor,
+  ca.level,
   ca.abbrev,
-  cp.name,
+  ca.title,
+  ca.inserttime,
+  ca.updatetime,
+  cp.name programname,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'ctc_clearinghouse' || '_' || ca.awardid || '_' || ca.fice || '_' || ca.cip6 || '_' || ca.seq || '_' || ca.abbrev "External Identifier",
@@ -72,19 +48,25 @@ SELECT
 	WHEN ca.level = '0' THEN 'PostSecondaryLevel'
 	ELSE 'ERROR-UNMATCHED'
   END "Audience Level Type",
-  'The ' || ca_fixup.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
-  'TBD-IPEDS-Webpage' "Subject Webpage",
+  --'The ' || ca_fixup.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
+   --'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
+   CASE
+   	WHEN cp.name is null THEN 'The ' || ca.title || ' credential is offered by the ' || inst.instlegalname || '.' 
+	ELSE 'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' 
+   END "Description" ,
+ 'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
-  'TBD-DISTANCE' "Learning Delivery Type",
+  'InPerson' "Learning Delivery Type",
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
-FROM thecb.ctc_clearinghouse_award ca
+FROM thecb.ctc_clearinghouse_award_readability ca
+--FROM thecb.ctc_clearinghouse_award ca
    LEFT JOIN thecb.institution inst ON ca.fice = inst.instfice
    LEFT JOIN thecb.ctc_clearinghouse_program cp ON (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
-   LEFT JOIN thecb.ctc_clearinghouse_award_fixup ca_fixup ON (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
+--   LEFT JOIN thecb.ctc_clearinghouse_award_fixup ca_fixup ON (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
 WHERE
 	(to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') <= CURRENT_DATE)
     AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > CURRENT_DATE OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC')
@@ -99,25 +81,18 @@ WHERE ctc.fice = cw.fice AND cw.opeid8 = ipeds.opeid8;
 
 -- Update Learning delivery type
 UPDATE thecb.credential_ctc ctc
-SET "Learning Delivery Type" = 
-    CASE
-		WHEN da.distancetypeid in ('1','2','6') THEN 'OnlineOnly'
-		WHEN da.distancetypeid in ('3','4') THEN 'BlendedDelivery'
-		WHEN da.distancetypeid in ('5') THEN 'InPerson'
-		ELSE "Learning Delivery Type"
-	END 
-FROM 
-	thecb.active_disted_awards_dedup da
-WHERE
-    ctc.fice = da.ficecode
-	AND ctc.cip6 = substring(da.programcip, 1, 6) 
-	AND ctc.seq = substring(da.cipsub,1,2);
-	
--- Update everything else as 'InPerson'
-UPDATE thecb.credential_ctc ctc
-SET "Learning Delivery Type" = 'InPerson'
-WHERE "Learning Delivery Type" = 'TBD-DISTANCE';
+SET "Learning Delivery Type" = 'OnlineOption'
+FROM thecb.active_disted_awards_dedup da
+WHERE ctc.fice = da.ficecode
+	AND ctc.cip6 = substring(da.awardcip, 1, 6) 
+	AND ctc.seq = da.cipsub
+	AND ctc.abbrev = da.award;
 
+/*
+select "Learning Delivery Type", count(*) 
+from thecb.credential_ctc hri
+GROUP by  "Learning Delivery Type"
+*/
 
 /*
 ==============
@@ -200,6 +175,7 @@ WHERE ctc.fice = org.fice;
 
 -- Run SELECT to create result set for saving to bulk CSV template
 select * from thecb.organization_ctc order by "Name";
-select * from thecb.credential_ctc order by instlegalname;
+select * from thecb.credential_ctc  order by instlegalname;
+
 
 

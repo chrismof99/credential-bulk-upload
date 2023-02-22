@@ -8,22 +8,29 @@ CREDENTIAL - PART 1
 
 -- Run the SELECT INTO query to create and populate bulk staging table: thecb.credential_univ
 DROP TABLE IF EXISTS thecb.credential_univ;
-
 SELECT 
   -- Tracking, lookup fields
+  ud.tableseq,
   ud.fice,
   ud.programcip,
   ud.programcipsub,
+  ud.degreename,
+  ud.degreelevel,
+  ud.inserttime,
+  ud.updatetime,
+  ud.datestart,
+  ud.dateend,
+  up.name programname,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'univ_degree' || '_' || ud.tableseq || '_' || ud.fice || '_' || ud.programcip || '_' || ud.programcipsub  "External Identifier",
---  ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
+  ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
   -- AWARD TYPE INLINE 
   CASE
   	WHEN ud.degreelevel = '1' AND ud.degreename != 'CER' THEN 'AssociateDegree'
 	WHEN ud.degreelevel = '2'  AND ud.degreename != 'CER' THEN 'BachelorDegree'
 	WHEN ud.degreelevel = '3' AND ud.degreename != 'CER' THEN 'MasterDegree'
-	WHEN ud.degreelevel = '3' AND ud.degreename = 'CER' THEN 'MasterCertificate'
+	WHEN ud.degreelevel = '3' AND ud.degreename = 'CER' THEN 'Certificate'
 	WHEN ud.degreelevel = '4' AND ud.degreename != 'CER' THEN 'ResearchDoctorate'
 	WHEN ud.degreelevel = '5' AND ud.degreename != 'CER' THEN 'ProfessionalDoctorate'
 	ELSE 'ERROR-UNMATCHED'
@@ -42,17 +49,17 @@ SELECT
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
-  'TBD-DISTANCE' "Learning Delivery Type",   -- Default to InPerson
+  'InPerson' "Learning Delivery Type",   -- Default to InPerson
   substring (ud.programcip,1,2) || '.' || substring (ud.programcip,3,4) "CIP List"
 INTO thecb.credential_univ
 FROM thecb.univ_degree ud
     LEFT JOIN thecb.institution inst on ud.fice = inst.instfice
 	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
 WHERE
-  (ud.datestart = null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
+  (ud.datestart is null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
   AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
-  AND inst.insttype in ('1', '6'); -- Public universities and Baylor
-
+  AND inst.insttype = '1';
+  
 -- Run UPDATE to enrich with IPEDS information (institution webpage)
 UPDATE thecb.credential_univ cu
 SET "Subject Webpage" = ipeds.website
@@ -62,26 +69,22 @@ FROM
 WHERE cu.fice = cw.fice
   AND cw.opeid8 = ipeds.opeid8;
 
--- Run UPDATE to appply distance ed information where it exists
+-- Run UPDATE to appply distance ed information where it exists ('OnlineOption'). Rows not found stay with the default set above ('InPerson')
 UPDATE thecb.credential_univ cu
-SET "Learning Delivery Type" = 
-    CASE
-		WHEN da.distancetypeid in ('1','2','6') THEN 'OnlineOnly'
-		WHEN da.distancetypeid in ('3','4') THEN 'BlendedDelivery'
-		WHEN da.distancetypeid in ('5') THEN 'InPerson'
-		ELSE "Learning Delivery Type"
-	END 
-FROM 
-	thecb.active_disted_awards_dedup da
-WHERE
-    cu.fice = da.ficecode
+SET "Learning Delivery Type" = 'OnlineOption'
+FROM thecb.active_disted_awards_dedup da
+WHERE cu.fice = da.ficecode
 	AND cu.programcip = da.programcip 
-	AND cu.programcipsub = da.cipsub;
-		
---Now default the rest to "InPerson"
-UPDATE thecb.credential_univ cu
-SET "Learning Delivery Type" = 'InPerson'
-WHERE "Learning Delivery Type" = 'TBD-DISTANCE';
+	AND cu.programcipsub = da.cipsub
+	AND cu.degreename = da.award;
+
+/*
+select "Learning Delivery Type", count(*) 
+from thecb.credential_univ cu
+GROUP by  "Learning Delivery Type"
+
+select count(*) from thecb.credential_univ cu
+*/
 
 /*
 ORGANIZATION File

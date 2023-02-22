@@ -10,12 +10,17 @@ DROP TABLE IF EXISTS thecb.credential_hri;
 
 SELECT 
   -- Tracking, lookup fields
+  ud.tableseq,
   ud.fice,
   ud.programcip,
   ud.programcipsub,
   ud.degreename,
-  up.name,
   ud.degreelevel,
+  ud.inserttime,
+  ud.updatetime,
+  ud.datestart,
+  ud.dateend,
+  up.name programname,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'univ_degree' || '_' || ud.tableseq || '_' || ud.fice || '_' || ud.programcip || '_' || ud.programcipsub  "External Identifier",
@@ -45,14 +50,14 @@ SELECT
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
-  'TBD-DISTANCE' "Learning Delivery Type",
+  'InPerson' "Learning Delivery Type",
   substring (ud.programcip,1,2) || '.' || substring (ud.programcip,3,4) "CIP List"
 INTO thecb.credential_hri
 FROM thecb.univ_degree ud
     LEFT JOIN thecb.institution inst on ud.fice = inst.instfice
 	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
 WHERE
-  (ud.datestart = null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
+  (ud.datestart is null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
   AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
   AND inst.insttype = '5'; -- Public universities and Baylor
 
@@ -67,24 +72,20 @@ AND cw.opeid8 = ipeds.opeid8;
 
 -- Run UPDATE to appply distance ed information where it exists
 UPDATE thecb.credential_hri hri
-SET "Learning Delivery Type" = 
-    CASE
-		WHEN da.distancetypeid in ('1','2','6') THEN 'OnlineOnly'
-		WHEN da.distancetypeid in ('3','4') THEN 'BlendedDelivery'
-		WHEN da.distancetypeid in ('5') THEN 'InPerson'
-		ELSE "Learning Delivery Type"
-	END 
-FROM 
-	thecb.active_disted_awards_dedup da
-WHERE
-    hri.fice = da.ficecode
+SET "Learning Delivery Type" = 'OnlineOption'
+FROM thecb.active_disted_awards_dedup da
+WHERE hri.fice = da.ficecode
 	AND hri.programcip = da.programcip 
-	AND hri.programcipsub = da.cipsub;
+	AND hri.programcipsub = da.cipsub
+	AND hri.degreename = da.award;
 
---Now default the rest to "InPerson"
-UPDATE thecb.credential_hri hri
-SET "Learning Delivery Type" = 'InPerson'
-WHERE "Learning Delivery Type" = 'TBD-DISTANCE';
+/*
+select "Learning Delivery Type", count(*) 
+from thecb.credential_hri hri
+GROUP by  "Learning Delivery Type"
+
+select count(*) from thecb.credential_hri
+*/
 
 /*
 ORGANIZATION FILE

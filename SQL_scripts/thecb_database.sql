@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS thecb.univ_degree_program
     programcip character varying(8) COLLATE pg_catalog."default",
     programcipsub character varying(2) COLLATE pg_catalog."default",
     name character varying(50) COLLATE pg_catalog."default",
+	--datestart character varying(15) COLLATE pg_catalog."default",
+	--dateend character varying(15) COLLATE pg_catalog."default",
     datestart date,
     dateend date,
     flag character varying(1) COLLATE pg_catalog."default",
@@ -45,13 +47,12 @@ CREATE TABLE IF NOT EXISTS thecb.univ_degree_program
     inserttime date,
     insertuser character varying(20) COLLATE pg_catalog."default",
     CONSTRAINT "univ_Degreeprogram_pkey" PRIMARY KEY (tableseq)
-)
-
-TABLESPACE pg_default;
+) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS thecb.univ_degree_program
     OWNER to postgres;
 	
+
 -- UNIV-DEGREE TABLE	
 DROP TABLE IF EXISTS thecb.univ_degree;
 
@@ -69,6 +70,8 @@ CREATE TABLE IF NOT EXISTS thecb.univ_degree
     degreecipsub character varying(2) COLLATE pg_catalog."default",
     degreelevel character varying(1) COLLATE pg_catalog."default",
     degreename character varying(7) COLLATE pg_catalog."default",
+    --datestart character varying(15) COLLATE pg_catalog."default",
+	--dateend character varying(15) COLLATE pg_catalog."default",
     datestart date,
     dateend date,
     positionx character varying(1) COLLATE pg_catalog."default",
@@ -288,3 +291,9 @@ CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
 ALTER TABLE IF EXISTS thecb.inst_type_lookup
     OWNER to postgres;
 	
+-- Readability lookups thecb.readability_lookup
+
+DROP TABLE IF EXISTS thecb.readability_lookup;
+
+CREATE TABLE IF NOT EXISTS thecb.readability_lookup
+(
