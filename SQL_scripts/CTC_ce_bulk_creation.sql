@@ -25,14 +25,25 @@ SELECT
   ca.inserttime,
   ca.updatetime,
   cp.name programname,
+  --- TEMP -- keep track of Credential Types we want to use when CTDL is up to date
+  CASE
+  	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAA' THEN 'AssociateOfAppliedArtsDegree'
+	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAS' THEN 'AssociateOfAppliedScienceDegree'
+	WHEN ca.level = '1' AND ca.typemajor = '1' THEN 'AssociateDegree'
+	WHEN ca.level in ('2','3','4') THEN 'Certificate'
+	WHEN ca.level = '6' THEN 'ERROR-EXCLUDE'
+	WHEN ca.level = '7' THEN 'BachelorDegree'
+	WHEN ca.level = '0' THEN 'CertificateOfCompletion'
+	ELSE 'ERROR-UNMATCHED'
+  END future_credential_type,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'ctc_clearinghouse' || '_' || ca.awardid || '_' || ca.fice || '_' || ca.cip6 || '_' || ca.seq || '_' || ca.abbrev "External Identifier",
   ca.title "Credential Name",
   -- AWARD TYPE INLINE 
   CASE
-  	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAA' THEN 'AssociateOfAppliedArtsDegree'
-	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAS' THEN 'AssociateOfAppliedScienceDegree'
+  	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAA' THEN 'AssociateDegree'   -- future: 'AssociateOfAppliedArtsDegree'
+	WHEN ca.level = '1' AND ca.typemajor != '1' AND ca.abbrev = 'AAS' THEN 'AssociateDegree'  -- future: 'AssociateOfAppliedScienceDegree'
 	WHEN ca.level = '1' AND ca.typemajor = '1' THEN 'AssociateDegree'
 	WHEN ca.level in ('2','3','4') THEN 'Certificate'
 	WHEN ca.level = '6' THEN 'ERROR-EXCLUDE'
@@ -51,8 +62,8 @@ SELECT
   --'The ' || ca_fixup.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
    --'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
    CASE
-   	WHEN cp.name is null THEN 'The ' || ca.title || ' credential is offered by the ' || inst.instlegalname || '.' 
-	ELSE 'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' 
+   	WHEN cp.name is null THEN 'The ' || ca_readability.title || ' credential is offered by the ' || inst.instlegalname || '.' 
+	ELSE 'The ' || ca_readability.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' 
    END "Description" ,
  'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
@@ -62,11 +73,10 @@ SELECT
   'InPerson' "Learning Delivery Type",
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
-FROM thecb.ctc_clearinghouse_award_readability ca
---FROM thecb.ctc_clearinghouse_award ca
+FROM thecb.ctc_clearinghouse_award ca
    LEFT JOIN thecb.institution inst ON ca.fice = inst.instfice
    LEFT JOIN thecb.ctc_clearinghouse_program cp ON (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
---   LEFT JOIN thecb.ctc_clearinghouse_award_fixup ca_fixup ON (ca.fice = ca_fixup.fice AND ca.cip6 = ca_fixup.cip6 AND ca.seq = ca_fixup.seq)
+   LEFT JOIN thecb.ctc_clearinghouse_award_readability ca_readability ON (ca.fice = ca_readability.fice AND ca.cip6 = ca_readability.cip6 AND ca.seq = ca_readability.seq)
 WHERE
 	(to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') <= CURRENT_DATE)
     AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > CURRENT_DATE OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC')
@@ -88,11 +98,6 @@ WHERE ctc.fice = da.ficecode
 	AND ctc.seq = da.cipsub
 	AND ctc.abbrev = da.award;
 
-/*
-select "Learning Delivery Type", count(*) 
-from thecb.credential_ctc hri
-GROUP by  "Learning Delivery Type"
-*/
 
 /*
 ==============
@@ -114,7 +119,7 @@ SELECT
  inst.instfice fice, 
  inst.insttype,
  inst.instlegalname "Name",
- 'ce-' || gen_random_uuid () "CTID",
+ 'TBD-CTID' "CTID",
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
@@ -124,9 +129,9 @@ SELECT
  'BulkUpload' "Publishing Methods",
  'Public' "Organization Sector",
  insttype.ce_agent_type "Organization Types",
- 'Tiffani.Tatum@highered.texas.gov' "Contact Email",
- 'Tiffani' "Contact First Name",
- 'Tatum' "Contact Last Name",
+ 'chris.moffatt@touchdownllc.com' "Contact Email",
+ 'Chris' "Contact First Name",
+ 'Moffatt' "Contact Last Name",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
@@ -143,7 +148,8 @@ from
 
 -- Run UPDATE to Enrich with IPEDS data
 update thecb.organization_ctc org
-SET "PrimaryPhoneNumber" = ipeds.phone,
+SET "CTID" = cw.org_ctid,
+    "PrimaryPhoneNumber" = ipeds.phone,
     "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,
 	"Street Address" = ipeds.street_address,
@@ -154,6 +160,15 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE org.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
   
+/*
+Update CTID for organizations that are already in Credential engine
+*/
+UPDATE thecb.organization_ctc org
+SET "CTID" = ct.org_ctid
+FROM thecb.org_ctid_mapping ct
+WHERE org."Name" =  ct.institution_name
+AND ct.institution_type = '3' ;
+  
 
 -- Run UPDATE to add madlibs description where no mission statement found
 UPDATE thecb.organization_ctc org
@@ -161,7 +176,6 @@ SET "Description" = org."Name" || ' is ' || it.madlibs ||'.'
 FROM thecb.inst_type_lookup it
 WHERE ("Description" is null OR "Description" = 'TBD-IPEDS')
 AND it.inst_type_code = org.insttype;
-
 
 /*
 CREDENTIAL PART 2

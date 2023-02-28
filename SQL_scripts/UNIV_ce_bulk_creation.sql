@@ -2,6 +2,18 @@
 UNIV Bulk file
 */
 
+-- Fix dates in UNIV where 2 digit dates should be 19th century
+/*
+select datestart , datestart - INTERVAL '100 years'
+from thecb.univ_degree
+where datestart > '2050-01-01'
+*/
+
+UPDATE thecb.univ_degree
+SET datestart = datestart - INTERVAL '100 years'
+where datestart > '2050-01-01';
+
+
 /*
 CREDENTIAL - PART 1
 */
@@ -20,11 +32,13 @@ SELECT
   ud.updatetime,
   ud.datestart,
   ud.dateend,
-  up.name programname,
+  --up.name programname,
+  up_readability.name programname,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
   'univ_degree' || '_' || ud.tableseq || '_' || ud.fice || '_' || ud.programcip || '_' || ud.programcipsub  "External Identifier",
-  ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
+  --ud.degreename || ' ' || INITCAP(up.translatename) "Credential Name",
+  ud.degreename || ' ' || INITCAP(up_readability.translatename) "Credential Name",
   -- AWARD TYPE INLINE 
   CASE
   	WHEN ud.degreelevel = '1' AND ud.degreename != 'CER' THEN 'AssociateDegree'
@@ -43,8 +57,9 @@ SELECT
 	WHEN ud.degreelevel in ('4', '5') THEN 'DoctoralDegreeLevel'
 	ELSE 'ERROR-UNMATCHED'
   END "Audience Level Type",-- univ_award.ctdl_credential_type "Credential Type", 
-  'The ' || ud.degreename || ' ' || INITCAP(up.name) || ' credential is offered by ' || inst.instlegalname || '.' "Description",  -- Madlibs construction for description
-  'TBD-IPEDS-Webpage' "Subject Webpage",
+ -- 'The ' || ud.degreename || ' ' || INITCAP(up.translatename) || ' credential is offered by ' || inst.instlegalname || '.' "Description",  -- Madlibs construction for description
+ 'The ' || ud.degreename || ' ' || INITCAP(up_readability.translatename) || ' credential is offered by ' || inst.instlegalname || '.' "Description",  -- Madlibs construction for description
+ 'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
@@ -54,7 +69,8 @@ SELECT
 INTO thecb.credential_univ
 FROM thecb.univ_degree ud
     LEFT JOIN thecb.institution inst on ud.fice = inst.instfice
-	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
+--	LEFT JOIN thecb.univ_degree_program up on ud.fice = up.fice AND ud.programcip = up.programcip AND ud.programcipsub = up.programcipsub 
+	LEFT JOIN thecb.univ_degree_program_readability up_readability on ud.fice = up_readability.fice AND ud.programcip = up_readability.programcip AND ud.programcipsub = up_readability.programcipsub 
 WHERE
   (ud.datestart is null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
   AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
@@ -78,13 +94,6 @@ WHERE cu.fice = da.ficecode
 	AND cu.programcipsub = da.cipsub
 	AND cu.degreename = da.award;
 
-/*
-select "Learning Delivery Type", count(*) 
-from thecb.credential_univ cu
-GROUP by  "Learning Delivery Type"
-
-select count(*) from thecb.credential_univ cu
-*/
 
 /*
 ORGANIZATION File
@@ -102,7 +111,7 @@ SELECT
  inst.instfice fice, 
  inst.insttype,
  inst.instlegalname "Name",
- 'ce-' || gen_random_uuid () "CTID",
+ 'TBD-CTID' "CTID",
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
@@ -112,9 +121,9 @@ SELECT
  'BulkUpload' "Publishing Methods",
  'Public' "OrganizationSector",
  insttype.ce_agent_type "Organization Types",
- 'Tiffani.Tatum@highered.texas.gov' "Contact Email",
- 'Tiffani' "Contact First Name",
- 'Tatum' "Contact Last Name",
+ 'chris.moffatt@touchdownllc.com' "Contact Email",
+ 'Chris' "Contact First Name",
+ 'Moffatt' "Contact Last Name",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
@@ -129,9 +138,10 @@ from
    orgfice.fice = inst.instfice
    and insttype.inst_type_code = inst.insttype;
 
--- Run UPDATE to Enrich with IPEDS data
+-- Run UPDATE to Enrich with IPEDS data & add assigned CTID
 UPDATE thecb.organization_univ org
-SET "PrimaryPhoneNumber" = ipeds.phone,
+SET "CTID" = cw.org_ctid,
+    "PrimaryPhoneNumber" = ipeds.phone,
     "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,
 	"Street Address" = ipeds.street_address,
@@ -142,12 +152,23 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE org.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
   
+/*
+Update CTID for organizations that are already in Credential engine
+*/
+UPDATE thecb.organization_univ org
+SET "CTID" = ct.org_ctid
+FROM thecb.org_ctid_mapping ct
+WHERE org."Name" =  ct.institution_name
+AND ct.institution_type = '1' ;
+
+  
 -- Run UPDATE to add madlibs description where no mission statement found
 UPDATE thecb.organization_univ org
 SET "Description" = org."Name" || ' is ' || it.madlibs ||'.'
 FROM thecb.inst_type_lookup it
 WHERE ("Description" is null OR "Description" = 'TBD-IPEDS')
 AND it.inst_type_code = org.insttype;
+
 
 
 /*
@@ -162,3 +183,4 @@ WHERE cu.fice = org.fice ;
 -- Run SELECT to create result set for saving to bulk CSV template
 select * from thecb.organization_univ order by "Name";
 select * from thecb.credential_univ order by instlegalname;
+

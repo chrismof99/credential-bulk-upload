@@ -14,6 +14,10 @@ UPDATE thecb.opeid_fice_crosswalk SET fice = '003626' WHERE institution_name = '
 UPDATE thecb.opeid_fice_crosswalk SET fice = '029137' WHERE institution_name = 'San Jacinto Community College';
 UPDATE thecb.opeid_fice_crosswalk SET fice = '009331' WHERE institution_name = 'Dallas College';
 
+update thecb.ipeds set phone = '8068743571' where institution_name like 'Clarendon%';
+update thecb.ipeds set phone = '8068949611' where institution_name like 'South Plains%';
+
+
 
 INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000020', 'Sul Ross State University Rio Grande College', '000020', NULL, NULL);
 
@@ -99,8 +103,25 @@ INSERT INTO thecb.ipeds VALUES (
 	'As a new medical school created in partnership with our community and built on the foundation of a top-tier research university, Dell Medical School is redefining the academic health environment.',
 	 NULL, NULL);
 
-/*
-CTC ipeds fixup
+-- The University of Texas Health Science Center at Tyler
+--select * from thecb.ipeds where institution_name like 'The University of Texas Health Science Center at Tyler'
+--select * from thecb.opeid_fice_crosswalk where institution_name like 'The University of Texas Health Science Center at Tyler'
+--delete from thecb.ipeds where institution_name like 'The University of Texas Health Science Center at Tyler'
+--delete from thecb.opeid_fice_crosswalk where institution_name like 'The University of Texas Health Science Center at Tyler'
+-- select * from thecb.institution where instlegalname ='The University of Texas Health Science Center at Tyler'
+--select * from thecb.institution where instfice = '042439'
+--select * from thecb.credential_hri where fice = '042439'
+
+
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00042439', 'The University of Texas Health Science Center at Tyler', '042439', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'The University of Texas Health Science Center at Tyler', 'The University of Texas Health Science Center at Tyler',
+	'11937 US Highway 271', 'Tyler','75708', 'https://www.uthct.edu','00042439', '9038777777',
+	NULL,
+	'https://www.uthct.edu/overview-and-history/', NULL);
+	
+	
 */
 
 -- Remove any/all Lone Star and add manually
@@ -108,106 +129,80 @@ CTC ipeds fixup
 delete from thecb.ipeds where institution_name = 'Lone Star College System';
 delete from thecb.opeid_fice_crosswalk where institution_name = 'Lone Star College System';
 
--- Lone Star College - Kingwood
---select * from thecb.ipeds where institution_name like 'Lone Star College - Kingwood' 
---select * from thecb.opeid_fice_crosswalk where institution_name like 'Lone Star College - Kingwood'
---delete from thecb.opeid_fice_crosswalk where institution_name = 'Lone Star College - Kingwood';
---delete from thecb.ipeds where institution_name = 'Lone Star College - Kingwood';
+-- Lone Star College - Connect Campus'
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000823', 'Lone Star College - Connect Campus', '000823', NULL, NULL);
 
+INSERT INTO thecb.ipeds VALUES (
+	'Lone Star College - Connect Campus', 'Lone Star College - Connect Campus',
+	'20515 SH 249', 'Houston','77070', 'https://www.lonestar.edu/lsc-online/','00000823', '2812905000',
+	NULL,'https://www.lonestar.edu/', NULL);
+	
+-- Lone Star College - Cy-Fair
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000717', 'Lone Star College - Cy-Fair', '000717', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'Lone Star College - Cy-Fair', 'Lone Star College - Cy-Fair',
+	'9191 Barker Cypress Road', 'Cypress','77433', 'https://www.lonestar.edu/cyfair.htm','00000717', '2812903200',
+	NULL,'https://www.lonestar.edu/', NULL);
+	
+-- Lone Star College - Houston North
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000819', 'Lone Star College - Houston North', '000819', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'Lone Star College - Houston North', 'Lone Star College - Houston North',
+	'4141 Victory Drive', 'Houston','77088', 'https://www.lonestar.edu/HoustonNorth.htm','00000819', '2818105602',
+	NULL,'https://www.lonestar.edu/', NULL);
+	
+-- Lone Star College - Kingwood
 INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000719', 'Lone Star College - Kingwood', '000719', NULL, NULL);
 
 INSERT INTO thecb.ipeds VALUES (
 	'Lone Star College - Kingwood', 'Lone Star College - Kingwood',
-	'20000 Kingwood Drive', 'Kingwood','77339', 'https://www.lonestar.edu/','00000719', '2813121600',
+	'20000 Kingwood Drive', 'Kingwood','77339', 'https://www.lonestar.edu/kingwood.htm','00000719', '2813121600',
+	NULL,'https://www.lonestar.edu/', NULL);
+
+-- Lone Star College - Montgomery
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000721', 'Lone Star College - Montgomery', '000721', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'Lone Star College - Montgomery', 'Lone Star College - Montgomery',
+	'3200 College Park Drive', 'Conroe','77384', 'https://www.lonestar.edu/montgomery.htm','00000721', '9362737000',
+	NULL,'https://www.lonestar.edu/', NULL);
+
+-- Lone Star College - North Harris
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000722', 'Lone Star College - North Harris', '000722', NULL, NULL);
+
+INSERT INTO thecb.ipeds VALUES (
+	'Lone Star College - North Harris', 'Lone Star College - North Harris',
+	'2700 W.W. Thorne Drive', 'Houston','77073', 'https://www.lonestar.edu/northharris.htm','00000722', '2816185400',
 	NULL,'https://www.lonestar.edu/', NULL);
 
 -- Lone Star College - Tomball
---select * from thecb.ipeds where institution_name like 'Lone Star College - Tomball' 
---select * from thecb.opeid_fice_crosswalk where institution_name like 'Lone Star College - Tomball'
-
 INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000720', 'Lone Star College - Tomball', '000720', NULL, NULL);
 
 INSERT INTO thecb.ipeds VALUES (
 	'Lone Star College - Tomball', 'Lone Star College - Tomball',
 	'30555 Tomball Parkway', 'Tomball','77375', 'https://www.lonestar.edu/','00000720', '2813513300',
 	NULL,'https://www.lonestar.edu/', NULL);
-
--- Lone Star College - Montgomery
---select * from thecb.ipeds where institution_name like 'Lone Star College - Montgomery'
---select * from thecb.opeid_fice_crosswalk where institution_name like 'Lone Star College - Montgomery'
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000721', 'Lone Star College - Montgomery', '000721', NULL, NULL);
-
-INSERT INTO thecb.ipeds VALUES (
-	'Lone Star College - Montgomery', 'Lone Star College - Montgomery',
-	'3200 College Park Drive', 'Conroe','77384', 'https://www.lonestar.edu/','00000721', '9362737000',
-	NULL,'https://www.lonestar.edu/', NULL);
-
--- Lone Star College - North Harris
---select * from thecb.ipeds where institution_name like 'NAME' '
---select * from thecb.opeid_fice_crosswalk where institution_name like 'NAME'
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000722', 'Lone Star College - North Harris', '000722', NULL, NULL);
-
-INSERT INTO thecb.ipeds VALUES (
-	'Lone Star College - North Harris', 'Lone Star College - North Harris',
-	'2700 W.W. Thorne Drive', 'Houston','77073', 'https://www.lonestar.edu/','00000722', '2816185400',
-	NULL,'https://www.lonestar.edu/', NULL);
-
--- Lone Star College - Houston North
---select * from thecb.ipeds where institution_name like 'NAME' '
---select * from thecb.opeid_fice_crosswalk where institution_name like 'NAME'
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000819', 'Lone Star College - Houston North', '000819', NULL, NULL);
-
-INSERT INTO thecb.ipeds VALUES (
-	'Lone Star College - Houston North', 'Lone Star College - Houston North',
-	'4141 Victory Drive', 'Houston','77088', 'https://www.lonestar.edu/','00000819', '2818105602',
-	NULL,'https://www.lonestar.edu/', NULL);
-
+	
 -- Lone Star College - University Park
---select * from thecb.ipeds where institution_name like 'NAME' '
---select * from thecb.opeid_fice_crosswalk where institution_name like 'NAME'
-
 INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000821', 'Lone Star College - University Park', '000821', NULL, NULL);
 
 INSERT INTO thecb.ipeds VALUES (
 	'Lone Star College - University Park', 'Lone Star College - University Park',
-	'20515 SH 249', 'Houston','77070', 'https://www.lonestar.edu/','00000821', '2812902600',
+	'20515 SH 249', 'Houston','77070', 'https://www.lonestar.edu/universitypark.htm','00000821', '2812902600',
 	NULL,'https://www.lonestar.edu/', NULL);
 
--- Lone Star College - Cy-Fair
---select * from thecb.ipeds where institution_name like 'NAME' '
---select * from thecb.opeid_fice_crosswalk where institution_name like 'NAME'
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000717', 'Lone Star College - Cy-Fair', '000717', NULL, NULL);
-
-INSERT INTO thecb.ipeds VALUES (
-	'Lone Star College - Cy-Fair', 'Lone Star College - Cy-Fair',
-	'9191 Barker Cypress Road', 'Cypress','77433', 'https://www.lonestar.edu/','00000717', '2812903200',
-	NULL,'https://www.lonestar.edu/', NULL);
-
--- Lone Star College - Connect Campus
---select * from thecb.ipeds where institution_name like 'NAME' '
---select * from thecb.opeid_fice_crosswalk where institution_name like 'NAME'
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00000823', 'Lone Star College - Connect Campus', '000823', NULL, NULL);
-
-INSERT INTO thecb.ipeds VALUES (
-	'Lone Star College - Connect Campus', 'Lone Star College - Connect Campus',
-	'20515 SH 249', 'Houston','77070', 'https://www.lonestar.edu/','00000823', '2812905000',
-	NULL,'https://www.lonestar.edu/', NULL);
 	
 -- Texas State Technical College Central Office
---select * from thecb.ipeds where institution_name like 'Texas State Technical College Central Office'
+--select * from thecb.ipeds where institution_name like 'Texas State Technical College'
 --select * from thecb.opeid_fice_crosswalk where institution_name like 'Texas State Technical College Central Office'
-delete from thecb.opeid_fice_crosswalk where institution_name = 'Texas State Technical College Central Office';
-delete from thecb.ipeds where institution_name = 'Texas State Technical College Central Office';
-
-INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00003634', 'Texas State Technical College Central Office', '009642', NULL, NULL);
+--delete from thecb.opeid_fice_crosswalk where institution_name like 'Texas State Technical College%';
+--delete from thecb.ipeds where institution_name = 'Texas State Technical College%';
+INSERT INTO thecb.opeid_fice_crosswalk VALUES ('00003634', 'Texas State Technical College', '009642', NULL, NULL);
 
 INSERT INTO thecb.ipeds VALUES (
-	'Texas State Technical College Central Office', 'Texas State Technical College Central Office',
+	'Texas State Technical College', 'Texas State Technical College',
 	'1304 San Antonio St #106b', 'Austin','78701', 'https://www.tstc.edu/','00003634', '8007928784',
 	NULL,'https://www.tstc.edu/about/mission', NULL);
 
@@ -219,10 +214,6 @@ SET mission_statement = 'Sul Ross State University in Far West Texas and the Mid
 WHERE institution_name = 'Sul Ross State University';
 
 
--- todo The University of Texas Health Science Center at Tyler 
--- phone:903-877-7777
--- web https://www.uthct.edu/
-
 -- Fixup webpage entries in IPEDS -- ensure has "https:" in the prefix
 */
 update thecb.ipeds
@@ -232,3 +223,52 @@ where left(website,8) != 'https://';
 update thecb.ipeds
 set mission_statement_url = 'https://' || mission_statement_url
 where left(mission_statement_url,8) != 'https://';
+
+
+
+// TEMP -- updates to LONESTAR
+/*
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/lsc-online/'
+WHERE institution_name = 'Lone Star College - Connect Campus';
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/cyfair.htm'
+WHERE institution_name = 'Lone Star College - Cy-Fair';
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/HoustonNorth.htm'
+WHERE institution_name = 'Lone Star College - Houston North';
+
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/kingwood.htm'
+WHERE institution_name = 'Lone Star College - Kingwood';
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/montgomery.htm'
+WHERE institution_name = 'Lone Star College - Montgomery';
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/northharris.htm'
+WHERE institution_name = 'Lone Star College - North Harris';
+
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/tomball.htm'
+WHERE institution_name = 'Lone Star College - Tomball';
+
+
+UPDATE thecb.ipeds
+SET website = 'https://www.lonestar.edu/universitypark.htm'
+WHERE institution_name = 'Lone Star College - University Park';
+*/
+
+
+/* TEMP
+1 time addition of ctids to crosswalk table
+*/
+
+--select * from thecb.opeid_fice_crosswalk
+--update thecb.opeid_fice_crosswalk
+--set org_ctid = 'ce-' || gen_random_uuid () ;

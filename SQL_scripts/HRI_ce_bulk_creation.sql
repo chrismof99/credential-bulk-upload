@@ -80,14 +80,6 @@ WHERE hri.fice = da.ficecode
 	AND hri.degreename = da.award;
 
 /*
-select "Learning Delivery Type", count(*) 
-from thecb.credential_hri hri
-GROUP by  "Learning Delivery Type"
-
-select count(*) from thecb.credential_hri
-*/
-
-/*
 ORGANIZATION FILE
 */ 
 -- Run SQL to create and populate Lookup table: thecb.hri_org_fice
@@ -103,7 +95,7 @@ SELECT
  inst.instfice fice, 
  inst.insttype,
  inst.instlegalname "Name",
- 'ce-' || gen_random_uuid () "CTID",
+ 'TBD-CTID' "CTID",
  'thecb_inst' || '_' ||inst.instfice "External Identifier",
  'TBD-IPEDS' "Webpage",
  'TBD-IPEDS' "Description",
@@ -113,9 +105,9 @@ SELECT
  'BulkUpload' "Publishing Methods",
  'Public' "OrganizationSector",
  insttype.ce_agent_type "Organization Types",
- 'Tiffani.Tatum@highered.texas.gov' "Contact Email",
- 'Tiffani' "Contact First Name",
- 'Tatum' "Contact Last Name",
+ 'chris.moffatt@touchdownllc.com' "Contact Email",
+ 'Chris' "Contact First Name",
+ 'Moffatt' "Contact Last Name",
  'TBD-IPEDS' "Street Address",
  'TBD-IPEDS'"City",
  'Texas'"StateProvince",
@@ -130,9 +122,10 @@ from
    orgfice.fice = inst.instfice
    and insttype.inst_type_code = inst.insttype;
 
--- Run UPDATE to Enrich with IPEDS data
+-- Run UPDATE to Enrich with IPEDS data and assigned ctid
 UPDATE thecb.organization_hri org
-SET "PrimaryPhoneNumber" = ipeds.phone,
+SET "CTID" = cw.org_ctid,
+    "PrimaryPhoneNumber" = ipeds.phone,
     "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,
 	"Street Address" = ipeds.street_address,
@@ -143,12 +136,23 @@ FROM thecb.opeid_fice_crosswalk cw,
 WHERE org.fice = cw.fice
   and cw.opeid8 = ipeds.opeid8;
   
+/*
+Update CTID for organizations that are already in Credential engine
+*/
+UPDATE thecb.organization_hri org
+SET "CTID" = ct.org_ctid
+FROM thecb.org_ctid_mapping ct
+WHERE org."Name" =  ct.institution_name
+AND ct.institution_type = '5' ;
+  
 -- Run UPDATE to add madlibs description where no mission statement found
 UPDATE thecb.organization_hri org
 SET "Description" = org."Name" || ' is ' || it.madlibs ||'.'
 FROM thecb.inst_type_lookup it
 WHERE ("Description" is null OR "Description" = 'TBD-IPEDS')
 AND it.inst_type_code = org.insttype;
+
+
 
 /* 
 CREDENTIAL PART 2

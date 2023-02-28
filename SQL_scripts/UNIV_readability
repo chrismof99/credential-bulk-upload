@@ -1,0 +1,11 @@
+/*
+Scripts to improve the readability of of  UNIV credentials -- title and description
+*/
+
+DROP TABLE IF EXISTS thecb.univ_degree_program_readability;
+SELECT * INTO thecb.univ_degree_program_readability FROM thecb.univ_degree_program;
+
+-- Remove references to years
+update thecb.univ_degree_program_readability
+set translatename = regexp_replace(translatename, '\d{4}', '')
+

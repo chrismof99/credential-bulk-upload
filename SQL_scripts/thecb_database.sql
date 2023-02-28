@@ -21,7 +21,40 @@ CREATE DATABASE credential_pipeline
 --CREATE SCHEMA IF NOT EXISTS thecb
 --    AUTHORIZATION postgres; 
 
+
+-- DROP TABLE IF EXISTS thecb.institution;
+
+CREATE TABLE IF NOT EXISTS thecb.institution
+(
+    instfice character varying(6) COLLATE pg_catalog."default" NOT NULL,
+  --  instfice2 character varying(6) COLLATE pg_catalog."default",
+    instname character varying(60) COLLATE pg_catalog."default",
+    insttype character varying(2) COLLATE pg_catalog."default",
+    instcnty character varying(3) COLLATE pg_catalog."default",
+    instsy character varying(10) COLLATE pg_catalog."default",
+    instpill character varying(10) COLLATE pg_catalog."default",
+    instbp character varying(10) COLLATE pg_catalog."default",
+    instsw character varying(10) COLLATE pg_catalog."default",
+    instlegalname character varying(200) COLLATE pg_catalog."default",
+    instabbrevname character varying(50) COLLATE pg_catalog."default",
+    instcountycode character varying(8) COLLATE pg_catalog."default",
+    instcountyname character varying(20) COLLATE pg_catalog."default",
+    instcounty character varying(20) COLLATE pg_catalog."default",
+    instregionnum character varying(5) COLLATE pg_catalog."default",
+    instregion character varying(50) COLLATE pg_catalog."default",
+    instacctsys character varying(20) COLLATE pg_catalog."default",
+    instpeergroup character varying(10) COLLATE pg_catalog."default",
+    insttypecode character varying(8) COLLATE pg_catalog."default",
+    zipcode character varying(8) COLLATE pg_catalog."default",
+    CONSTRAINT institution_pkey PRIMARY KEY (instfice)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS thecb.institution
+    OWNER to postgres;
 -- UNIV-DEGREE-PROGRAM TABLE	
+
 DROP TABLE IF EXISTS thecb.univ_degree_program;
 
 CREATE TABLE IF NOT EXISTS thecb.univ_degree_program
@@ -290,10 +323,27 @@ CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
 
 ALTER TABLE IF EXISTS thecb.inst_type_lookup
     OWNER to postgres;
-	
+
+-- Table CTID mapping
+
+DROP TABLE IF EXISTS thecb.org_ctid_mapping;
+
+CREATE TABLE IF NOT EXISTS thecb.org_ctid_mapping
+(
+	org_ctid text COLLATE pg_catalog."default" NOT NULL,
+	institution_name character varying(100) COLLATE pg_catalog."default",
+	institution_type character varying(1) COLLATE pg_catalog."default",
+    CONSTRAINT org_ctid_mapping_pkey PRIMARY KEY (org_ctid)
+) TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS thecb.ctc_clearinghouse_award
+    OWNER to postgres;
+
+/*
 -- Readability lookups thecb.readability_lookup
 
 DROP TABLE IF EXISTS thecb.readability_lookup;
 
 CREATE TABLE IF NOT EXISTS thecb.readability_lookup
 (
+/*
