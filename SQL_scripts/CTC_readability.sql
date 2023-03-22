@@ -1,3 +1,24 @@
+/* 
+TEMP FIXUP 2 two rows in CTC  -- see email with Jana - 3-1
+*/
+/*
+SELECT ca.startdate, ca.enddate, ca.awardid, cp.programid, ca.fice , cp.fice, ca.programcip6, cp.cip6, ca.programseq, cp.seq
+FROM 
+  thecb.ctc_clearinghouse_award ca
+LEFT JOIN thecb.ctc_clearinghouse_program cp ON (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
+where ca.awardid in ('20929', '20930');
+*/
+
+/*
+UPDATE thecb.ctc_clearinghouse_award 
+SET fice = '003626' , enddate = null
+WHERE awardid in ('20929', '20930');
+
+UPDATE thecb.ctc_clearinghouse_program 
+SET fice = '003626'
+WHERE programid = '6777';
+*/
+
 /*
 Scripts to improve the readability of of CTC credentials -- title and description
 */
@@ -40,33 +61,9 @@ UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Cco
 UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Cnc ', 'CNC ');
 UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, '2d', '2D');
 UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, '3d', '3D');
+UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Tdc', 'TDC');
+UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Ii', 'II');
+UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Cis', 'CIS');
+UPDATE thecb.ctc_clearinghouse_award_readability SET title= REPLACE (title, 'Ser', 'SER');
 
-
-
-/*
-UPDATE thecb.credential_ctc_readability 
-SET "Credential Name" = concat (substring ("Credential Name",11), ' ' || substring ("Credential Name",1,9))
-WHERE substring ("Credential Name",1,9) like '(%';
-
--- remove numbered parentheses from Description field (117)
-UPDATE thecb.credential_ctc_readability 
-SET "Description" = regexp_replace("Description", '\s*\(\d+\.\d+\)', '')
-where "Description" ~ '\s*\(\d+\.\d+\)';
-/*
-
----- HERE ----
-
--- Set title casing
-/* More */
-
---DROP TABLE IF EXISTS thecb.credential_ctc_readability;
---SELECT * INTO thecb.credential_ctc_readability FROM thecb.credential_ctc ;
-
-/*
-select "Credential Name", "Description" from thecb.credential_ctc 
-where "Credential Name" ~ '\s*\(\d+\.\d+\)'
-
-select "Credential Name", "Description" from thecb.credential_ctc_readability 
-where "Credential Name" ~ '\s*\(\d+\.\d+\)'
-*/
 
