@@ -324,7 +324,7 @@ CREATE TABLE IF NOT EXISTS thecb.inst_type_lookup
 ALTER TABLE IF EXISTS thecb.inst_type_lookup
     OWNER to postgres;
 
--- Table CTID mapping
+-- Table ORG CTID mapping
 
 DROP TABLE IF EXISTS thecb.org_ctid_mapping;
 
@@ -338,12 +338,17 @@ CREATE TABLE IF NOT EXISTS thecb.org_ctid_mapping
 
 ALTER TABLE IF EXISTS thecb.ctc_clearinghouse_award
     OWNER to postgres;
+	
+-- Table CREDENTIAL CTID mapping
+DROP TABLE IF EXISTS thecb.credential_ctid_mapping;
 
-/*
--- Readability lookups thecb.readability_lookup
-
-DROP TABLE IF EXISTS thecb.readability_lookup;
-
-CREATE TABLE IF NOT EXISTS thecb.readability_lookup
+CREATE TABLE IF NOT EXISTS thecb.credential_ctid_mapping
 (
-/*
+	thecb_identifier text COLLATE pg_catalog."default" NOT NULL,
+	credential_ctid text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT credential_ctid_mapping_pkey PRIMARY KEY (thecb_identifier, credential_ctid )
+) TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS thecb.ctc_clearinghouse_award
+    OWNER to postgres;
+

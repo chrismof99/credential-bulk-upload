@@ -23,6 +23,7 @@ SELECT
   up.name programname,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
+  '' "CTID",
   'univ_degree' || '_' || ud.tableseq || '_' || ud.fice || '_' || ud.programcip || '_' || ud.programcipsub  "External Identifier",
   ud.degreename || ' ' || INITCAP(up.name) "Credential Name",
   -- AWARD TYPE INLINE 
@@ -50,7 +51,8 @@ SELECT
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
-  'InPerson' "Learning Delivery Type",
+--  ud.datestart "Date Effective",
+--  'InPerson' "Learning Delivery Type", -- 3/1 - remove Learning Delivery Type from initial upload
   substring (ud.programcip,1,2) || '.' || substring (ud.programcip,3,4) "CIP List"
 INTO thecb.credential_hri
 FROM thecb.univ_degree ud
@@ -59,7 +61,8 @@ FROM thecb.univ_degree ud
 WHERE
   (ud.datestart is null or ud.datestart <= CURRENT_DATE)  -- Filter by start/end dates
   AND (ud.dateend is null or ud.dateend > CURRENT_DATE)
-  AND inst.insttype = '5'; -- Public universities and Baylor
+  AND inst.insttype = '5' -- Public universities 
+  AND instlegalname != 'Baylor College of Medicine'; -- March 1st, filter out Baylor pending confirmation from Jana
 
 -- Run UPDATE to enrich with IPEDS information (institution webpage)
 UPDATE thecb.credential_hri hri
@@ -70,7 +73,9 @@ FROM
 WHERE hri.fice = cw.fice 
 AND cw.opeid8 = ipeds.opeid8;	
 
+-- 3/1 - remove Learning Delivery Type from initial upload
 -- Run UPDATE to appply distance ed information where it exists
+/*
 UPDATE thecb.credential_hri hri
 SET "Learning Delivery Type" = 'OnlineOption'
 FROM thecb.active_disted_awards_dedup da
@@ -78,6 +83,7 @@ WHERE hri.fice = da.ficecode
 	AND hri.programcip = da.programcip 
 	AND hri.programcipsub = da.cipsub
 	AND hri.degreename = da.award;
+*/
 
 /*
 ORGANIZATION FILE
@@ -134,7 +140,7 @@ SET "CTID" = cw.org_ctid,
 FROM thecb.opeid_fice_crosswalk cw,
   thecb.ipeds ipeds
 WHERE org.fice = cw.fice
-  and cw.opeid8 = ipeds.opeid8;
+  and cw.opeid8 = ipeds.opeid8;     
   
 /*
 Update CTID for organizations that are already in Credential engine
@@ -162,6 +168,13 @@ UPDATE thecb.credential_hri hri
 SET "Owned By" = org."CTID"
 FROM thecb.organization_hri org
 WHERE hri.fice = org.fice;
+
+-- Update Credential records with pre-assigned CTIDS
+UPDATE thecb.credential_univ cu
+SET "CTID" = cred.credential_ctid
+FROM thecb.credential_ctid_mapping cred
+WHERE cu."External Identifier" =  cred.thecb_identifier;
+
 
 -- Run SELECT to create result set for saving to bulk CSV template
 select * from thecb.organization_hri order by "Name";

@@ -2,6 +2,7 @@
 CTC - combined Organization and Credential
 */
 
+
 /*
 CREDENTIAL - PART 1
 */
@@ -38,6 +39,7 @@ SELECT
   END future_credential_type,
   inst.instlegalname,
   'TBD-ORGCTID' "Owned By",
+  '' "CTID",
   'ctc_clearinghouse' || '_' || ca.awardid || '_' || ca.fice || '_' || ca.cip6 || '_' || ca.seq || '_' || ca.abbrev "External Identifier",
   ca.title "Credential Name",
   -- AWARD TYPE INLINE 
@@ -62,26 +64,27 @@ SELECT
   --'The ' || ca_fixup.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
    --'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' "Description" ,
    CASE
-   	WHEN cp.name is null THEN 'The ' || ca_readability.title || ' credential is offered by the ' || inst.instlegalname || '.' 
-	ELSE 'The ' || ca_readability.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' 
+   	WHEN cp.name is null THEN 'The ' || ca.title || ' credential is offered by the ' || inst.instlegalname || '.' 
+	ELSE 'The ' || ca.title || ' credential is offered by the ' || INITCAP(cp.name) || ' program at ' || inst.instlegalname || '.' 
    END "Description" ,
  'TBD-IPEDS-Webpage' "Subject Webpage",
   'Active' "Credential Status", 
   'English-en' "Language",
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Approved By", -- THECB CTID
   'ce-4ea8b911-5659-49e0-b382-8dfed5277bbf' "Regulated By", -- THECB CTID
-  'InPerson' "Learning Delivery Type",
+  to_date(ca.startdate,'YYYYMMDD') "Date Effective",
+--  'InPerson' "Learning Delivery Type",
   substring (ca.cip6,1,2) || '.' || substring (ca.cip6,3,4) "CIP List"
 INTO thecb.credential_ctc
-FROM thecb.ctc_clearinghouse_award ca
+FROM thecb.ctc_clearinghouse_award_readability ca
    LEFT JOIN thecb.institution inst ON ca.fice = inst.instfice
    LEFT JOIN thecb.ctc_clearinghouse_program cp ON (ca.fice = cp.fice AND ca.programcip6 = cp.cip6 AND ca.programseq = cp.seq)
-   LEFT JOIN thecb.ctc_clearinghouse_award_readability ca_readability ON (ca.fice = ca_readability.fice AND ca.cip6 = ca_readability.cip6 AND ca.seq = ca_readability.seq)
+   --LEFT JOIN thecb.ctc_clearinghouse_award_readability ca_readability ON (ca.fice = ca_readability.fice AND ca.cip6 = ca_readability.cip6 AND ca.seq = ca_readability.seq)
 WHERE
 	(to_date(ca.startdate,'YYYYMMDD') is null OR to_date(ca.startdate, 'YYYYMMDD') <= CURRENT_DATE)
     AND (to_date(ca.enddate,'YYYYMMDD') is null OR to_date(ca.enddate, 'YYYYMMDD') > CURRENT_DATE OR to_date(ca.enddate, 'YYYYMMDD')= '0001-01-01 BC')
 	AND inst.insttype = '3'
-	AND ca.level != '6';
+	AND ca.level != '6'; -- filter out according to feedback from Jana
 
 -- Run UPDATE to enrich with IPEDS information - institution webpage
 UPDATE thecb.credential_ctc ctc
@@ -90,6 +93,8 @@ FROM thecb.opeid_fice_crosswalk cw, thecb.ipeds ipeds
 WHERE ctc.fice = cw.fice AND cw.opeid8 = ipeds.opeid8;
 
 -- Update Learning delivery type
+-- 3/1 - remove Learning Delivery Type from initial upload
+/*
 UPDATE thecb.credential_ctc ctc
 SET "Learning Delivery Type" = 'OnlineOption'
 FROM thecb.active_disted_awards_dedup da
@@ -97,7 +102,7 @@ WHERE ctc.fice = da.ficecode
 	AND ctc.cip6 = substring(da.awardcip, 1, 6) 
 	AND ctc.seq = da.cipsub
 	AND ctc.abbrev = da.award;
-
+*/
 
 /*
 ==============
@@ -186,6 +191,12 @@ UPDATE thecb.credential_ctc ctc
 SET "Owned By" = org."CTID"
 FROM thecb.organization_ctc org
 WHERE ctc.fice = org.fice;
+
+-- Update Credential records with pre-assigned CTIDS
+UPDATE thecb.credential_univ cu
+SET "CTID" = cred.credential_ctid
+FROM thecb.credential_ctid_mapping cred
+WHERE cu."External Identifier" =  cred.thecb_identifier;
 
 -- Run SELECT to create result set for saving to bulk CSV template
 select * from thecb.organization_ctc order by "Name";
