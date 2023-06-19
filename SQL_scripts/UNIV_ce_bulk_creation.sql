@@ -2,18 +2,6 @@
 UNIV Bulk file
 */
 
--- Fix dates in UNIV where 2 digit dates should be 19th century
-/*
-select datestart , datestart - INTERVAL '100 years'
-from thecb.univ_degree
-where datestart > '2050-01-01'
-*/
-
-UPDATE thecb.univ_degree
-SET datestart = datestart - INTERVAL '100 years'
-where datestart > '2050-01-01';
-
-
 /*
 CREDENTIAL - PART 1
 */
@@ -146,7 +134,9 @@ from
 
 -- Run UPDATE to Enrich with IPEDS data & add assigned CTID
 UPDATE thecb.organization_univ org
-SET "CTID" = cw.org_ctid,
+SET 
+   "CTID" = 'Enrich-TBD',
+--"CTID" = cw.org_ctid,
     "PrimaryPhoneNumber" = ipeds.phone,
     "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,

@@ -153,7 +153,9 @@ from
 
 -- Run UPDATE to Enrich with IPEDS data
 update thecb.organization_ctc org
-SET "CTID" = cw.org_ctid,
+SET
+   "CTID" = 'Enrich-TBD',
+--"CTID" = cw.org_ctid,
     "PrimaryPhoneNumber" = ipeds.phone,
     "Webpage" =ipeds.website,
     "Description" = ipeds.mission_statement,
